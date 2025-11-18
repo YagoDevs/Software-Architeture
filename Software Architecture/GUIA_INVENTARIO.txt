@@ -1,0 +1,281 @@
+═══════════════════════════════════════════════════════════════════
+           GUIA DE MONTAGEM DO INVENTÁRIO NA UNITY
+═══════════════════════════════════════════════════════════════════
+
+PARTE 1: CONFIGURAÇÃO INICIAL
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Criar o Canvas Principal
+   • Clique direito na Hierarchy > UI > Canvas
+   • Configure: Canvas Scaler > UI Scale Mode = "Scale With Screen Size"
+   • Reference Resolution: 1920x1080
+
+2. Adicionar o InventoryManager na Cena
+   • Crie um GameObject vazio: GameObject > Create Empty
+   • Renomeie para "InventoryManager"
+   • Adicione o script: InventoryManager.cs
+
+
+PARTE 2: CRIAR A UI DO INVENTÁRIO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+3. Criar o Painel Principal do Inventário
+   • Clique direito no Canvas > UI > Panel
+   • Renomeie para "InventoryPanel"
+   • Configure:
+     - Anchor: Centro
+     - Width: 1200, Height: 700
+     - Color: Marrom escuro semi-transparente (R: 0.3, G: 0.2, B: 0.1, A: 0.95)
+
+4. Criar Barra Lateral Esquerda (Categorias)
+   • Clique direito em InventoryPanel > UI > Image
+   • Renomeie para "SidebarPanel"
+   • Configure:
+     - Anchor: Esquerda (centro)
+     - Width: 100, Height: 700
+     - Pos X: -550
+     - Color: Marrom mais escuro (R: 0.2, G: 0.15, B: 0.08, A: 1)
+
+5. Adicionar Botões de Categoria na Sidebar
+   • Crie 6 botões dentro de SidebarPanel:
+   
+   Botão 1 - "AllButton":
+     - UI > Button - TextMeshPro
+     - Width: 80, Height: 80
+     - Pos Y: 250
+     - Adicione um ícone (UI > Image dentro do botão)
+   
+   Botão 2 - "PotionsButton":
+     - Width: 80, Height: 80
+     - Pos Y: 150
+   
+   Botão 3 - "MaterialsButton":
+     - Pos Y: 50
+   
+   Botão 4 - "FoodButton":
+     - Pos Y: -50
+   
+   Botão 5 - "WeaponsButton":
+     - Pos Y: -150
+   
+   Botão 6 - "KeysButton":
+     - Pos Y: -250
+
+6. Criar Título "Inventory"
+   • Clique direito em InventoryPanel > UI > Text - TextMeshPro
+   • Renomeie para "TitleText"
+   • Configure:
+     - Texto: "Inventory"
+     - Font Size: 48
+     - Color: Dourado (R: 1, G: 0.8, B: 0.2)
+     - Alignment: Centro e Topo
+     - Pos Y: 300
+
+7. Criar Texto de Capacidade
+   • Clique direito em InventoryPanel > UI > Text - TextMeshPro
+   • Renomeie para "CapacityText"
+   • Configure:
+     - Texto: "Capacity 0/250"
+     - Font Size: 24
+     - Color: Dourado
+     - Pos Y: 250
+
+
+PARTE 3: CRIAR O GRID DE SLOTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+8. Criar o Painel do Grid
+   • Clique direito em InventoryPanel > UI > Image
+   • Renomeie para "GridPanel"
+   • Configure:
+     - Anchor: Centro-Esquerda
+     - Width: 500, Height: 500
+     - Pos X: -200
+     - Color: Marrom médio (R: 0.25, G: 0.18, B: 0.1, A: 0.8)
+
+9. Adicionar Grid Layout Group ao GridPanel
+   • Com GridPanel selecionado, clique "Add Component"
+   • Adicione: Grid Layout Group
+   • Configure:
+     - Cell Size: 90 x 90
+     - Spacing: 5 x 5
+     - Constraint: Fixed Column Count = 5
+
+10. Criar o Prefab do Slot
+    • Clique direito em GridPanel > UI > Image
+    • Renomeie para "InventorySlot"
+    • Configure:
+      - Color: Marrom escuro (R: 0.15, G: 0.1, B: 0.05)
+      
+    • Adicione borda dourada:
+      - Clique direito em InventorySlot > UI > Image
+      - Renomeie para "Border"
+      - Anchor: Stretch All
+      - Left/Right/Top/Bottom: 2
+      - Color: Dourado (R: 0.8, G: 0.6, B: 0.2)
+      
+    • Adicione o ícone do item:
+      - Clique direito em InventorySlot > UI > Image
+      - Renomeie para "ItemIcon"
+      - Width: 70, Height: 70
+      - Preserve Aspect: Checked
+      - Desmarque "Enabled" (será ativado pelo script)
+      
+    • Adicione texto de quantidade:
+      - Clique direito em InventorySlot > UI > Text - TextMeshPro
+      - Renomeie para "QuantityText"
+      - Configure:
+        - Font Size: 18
+        - Color: Branco
+        - Anchor: Canto inferior direito
+        - Pos: X: -10, Y: 10
+        - Alignment: Direita e Baixo
+      
+    • Adicione borda de seleção:
+      - Clique direito em InventorySlot > UI > Image
+      - Renomeie para "SelectedBorder"
+      - Anchor: Stretch All
+      - Left/Right/Top/Bottom: 0
+      - Color: Amarelo brilhante (R: 1, G: 1, B: 0)
+      - Desmarque "Enabled"
+      
+    • Adicione o script InventorySlot.cs ao InventorySlot
+    • Arraste as referências:
+      - ItemIcon → iconImage
+      - QuantityText → quantityText
+      - SelectedBorder → selectedBorder
+
+11. Criar o Prefab
+    • Arraste o InventorySlot para a pasta Project/Assets
+    • Isso cria o Prefab
+    • Delete o InventorySlot da Hierarchy
+
+
+PARTE 4: PAINEL DE DETALHES DO ITEM
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+12. Criar Painel de Detalhes
+    • Clique direito em InventoryPanel > UI > Image
+    • Renomeie para "ItemDetailsPanel"
+    • Configure:
+      - Anchor: Direita (centro)
+      - Width: 400, Height: 550
+      - Pos X: 300
+      - Color: Marrom médio (R: 0.25, G: 0.18, B: 0.1)
+
+13. Adicionar Ícone Grande do Item
+    • Clique direito em ItemDetailsPanel > UI > Image
+    • Renomeie para "ItemDetailIcon"
+    • Width: 200, Height: 200
+    • Pos Y: 180
+
+14. Adicionar Nome do Item
+    • Clique direito em ItemDetailsPanel > UI > Text - TextMeshPro
+    • Renomeie para "ItemNameText"
+    • Configure:
+      - Font Size: 32
+      - Color: Dourado
+      - Pos Y: 50
+      - Alignment: Centro
+
+15. Adicionar Descrição do Item
+    • Clique direito em ItemDetailsPanel > UI > Text - TextMeshPro
+    • Renomeie para "ItemDescriptionText"
+    • Configure:
+      - Width: 350, Height: 200
+      - Font Size: 18
+      - Color: Bege claro (R: 0.9, G: 0.8, B: 0.6)
+      - Pos Y: -80
+      - Alignment: Centro e Topo
+      - Wrapping: Enabled
+
+16. Criar Botão "Use"
+    • Clique direito em ItemDetailsPanel > UI > Button - TextMeshPro
+    • Renomeie para "UseButton"
+    • Configure:
+      - Width: 150, Height: 50
+      - Pos: X: -100, Y: -230
+      - Text: "Use"
+      - Font Size: 24
+      - Color do botão: Verde escuro
+
+17. Criar Botão "Drop"
+    • Clique direito em ItemDetailsPanel > UI > Button - TextMeshPro
+    • Renomeie para "DropButton"
+    • Configure:
+      - Width: 150, Height: 50
+      - Pos: X: 100, Y: -230
+      - Text: "Drop"
+      - Font Size: 24
+      - Color do botão: Vermelho escuro
+
+
+PARTE 5: CONECTAR TUDO
+━━━━━━━━━━━━━━━━━━━━━━
+
+18. Configurar o InventoryUI
+    • Crie um GameObject vazio dentro do Canvas
+    • Renomeie para "InventoryUIManager"
+    • Adicione o script InventoryUI.cs
+    
+    • Arraste todas as referências no Inspector:
+      - inventoryPanel → InventoryPanel
+      - slotsParent → GridPanel
+      - slotPrefab → InventorySlot (da pasta Project)
+      - itemDetailsPanel → ItemDetailsPanel
+      - itemDetailIcon → ItemDetailIcon
+      - itemNameText → ItemNameText
+      - itemDescriptionText → ItemDescriptionText
+      - capacityText → CapacityText
+      - useButton → UseButton
+      - dropButton → DropButton
+      - allButton → AllButton
+      - potionsButton → PotionsButton
+      - materialsButton → MaterialsButton
+      - foodButton → FoodButton
+      - weaponsButton → WeaponsButton
+      - keysButton → KeysButton
+
+
+PARTE 6: CRIAR ITENS DE EXEMPLO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+19. Criar um Item
+    • Clique direito na pasta Project
+    • Create > Inventory > Item
+    • Configure as propriedades:
+      - Item Name: "Purple Hydrangea"
+      - Icon: (arraste uma sprite)
+      - Description: "Freshly scented hydrangea..."
+      - Category: Materials
+      - Is Stackable: True
+      - Max Stack: 99
+      - Weight: 1
+
+
+PARTE 7: TESTAR
+━━━━━━━━━━━━━━━
+
+20. Para testar, adicione itens via código temporário:
+    • Crie um script de teste ou use o console
+    • Exemplo:
+      
+      InventoryManager.Instance.AddItem(itemData, 1);
+
+
+DICAS DE CORES DOURADAS:
+━━━━━━━━━━━━━━━━━━━━━━━
+- Dourado claro: R: 1, G: 0.84, B: 0.3
+- Dourado médio: R: 0.8, G: 0.6, B: 0.2
+- Dourado escuro: R: 0.6, G: 0.45, B: 0.15
+
+DICAS DE CORES MARROM:
+━━━━━━━━━━━━━━━━━━━━━━
+- Marrom escuro: R: 0.2, G: 0.15, B: 0.08
+- Marrom médio: R: 0.3, G: 0.2, B: 0.1
+- Marrom claro: R: 0.4, G: 0.3, B: 0.15
+
+═══════════════════════════════════════════════════════════════════
+                         FIM DO GUIA
+═══════════════════════════════════════════════════════════════════
+
