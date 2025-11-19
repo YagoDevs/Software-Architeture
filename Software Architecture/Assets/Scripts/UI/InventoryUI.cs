@@ -162,6 +162,13 @@ public class InventoryUI : MonoBehaviour
         {
             Debug.Log("Item ou ItemData é null, ocultando painel de detalhes");
             itemDetailsPanel.SetActive(false);
+            
+            if (itemNameText != null)
+            {
+                itemNameText.text = string.Empty;
+                itemNameText.gameObject.SetActive(false);
+            }
+            
             return;
         }
         
@@ -172,7 +179,12 @@ public class InventoryUI : MonoBehaviour
             itemDetailIcon.sprite = item.itemData.icon;
         
         if (itemNameText != null)
+        {
+            if (!itemNameText.gameObject.activeSelf)
+                itemNameText.gameObject.SetActive(true);
+            
             itemNameText.text = item.itemData.itemName;
+        }
         
         if (itemDescriptionText != null)
             itemDescriptionText.text = item.itemData.description;
