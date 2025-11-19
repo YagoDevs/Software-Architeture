@@ -28,15 +28,15 @@ public class InventoryManager : MonoBehaviour
     
     public bool AddItem(ItemData itemData, int quantity = 1)
     {
-        // Verifica se excede a capacidade
+        // Check if the capacity limit would be exceeded
         int totalWeight = itemData.weight * quantity;
         if (currentCapacity + totalWeight > maxCapacity)
         {
-            Debug.Log("Inventário cheio!");
+            Debug.Log("Inventory full!");
             return false;
         }
         
-        // Verifica se o item é empilhável
+        // Check whether the item can be stacked
         if (itemData.isStackable)
         {
             InventoryItem existingItem = items.Find(x => x.itemData == itemData);
@@ -48,14 +48,14 @@ public class InventoryManager : MonoBehaviour
             }
         }
         
-        // Verifica se tem espaço para novo slot
+        // Ensure there is room for a new slot
         if (items.Count >= maxSlots)
         {
-            Debug.Log("Sem slots disponíveis!");
+            Debug.Log("No slots available!");
             return false;
         }
         
-        // Adiciona novo item
+        // Add a new item entry
         InventoryItem newItem = new InventoryItem
         {
             itemData = itemData,
@@ -86,8 +86,8 @@ public class InventoryManager : MonoBehaviour
     {
         if (item.itemData.isConsumable)
         {
-            // Aqui você pode adicionar lógica para usar o item
-            Debug.Log($"Usando {item.itemData.itemName}");
+            // Place the gameplay logic for consuming the item here
+            Debug.Log($"Using {item.itemData.itemName}");
             RemoveItem(item.itemData, 1);
         }
     }

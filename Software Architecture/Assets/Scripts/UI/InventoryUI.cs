@@ -40,21 +40,21 @@ public class InventoryUI : MonoBehaviour
     
     void Start()
     {
-        // Cria os slots
+        // Create the slots
         CreateSlots();
         
-        // Oculta o inventário no início
+        // Hide the inventory at startup
         inventoryPanel.SetActive(false);
         itemDetailsPanel.SetActive(false);
         
-        // Configura os botões
+        // Configure action buttons
         if (useButton != null)
             useButton.onClick.AddListener(UseSelectedItem);
         
         if (dropButton != null)
             dropButton.onClick.AddListener(DropSelectedItem);
         
-        // Configura botões de categoria
+        // Configure category buttons
         if (allButton != null)
             allButton.onClick.AddListener(() => FilterByCategory(ItemCategory.All));
         if (potionsButton != null)
@@ -71,7 +71,7 @@ public class InventoryUI : MonoBehaviour
     
     void Update()
     {
-        // Abre/fecha o inventário com a tecla E
+        // Toggle the inventory with the E key
         if (Keyboard.current.eKey.wasPressedThisFrame)
         {
             ToggleInventory();
@@ -98,12 +98,12 @@ public class InventoryUI : MonoBehaviour
         if (isActive)
         {
             RefreshInventory();
-            // Pausa o jogo ou desabilita o movimento do jogador
+            // Pause the game or disable player movement
             Time.timeScale = 0f;
         }
         else
         {
-            // Despausa o jogo
+            // Resume the game
             Time.timeScale = 1f;
             itemDetailsPanel.SetActive(false);
         }
@@ -111,22 +111,22 @@ public class InventoryUI : MonoBehaviour
     
     public void RefreshInventory()
     {
-        // Limpa todos os slots
+        // Clear every slot
         foreach (InventorySlot slot in slots)
         {
             slot.ClearSlot();
         }
         
-        // Pega os itens filtrados
+        // Fetch the filtered items
         List<InventoryItem> itemsToShow = InventoryManager.Instance.GetItemsByCategory(currentCategory);
         
-        // Preenche os slots com os itens
+        // Fill the slots with the items
         for (int i = 0; i < itemsToShow.Count && i < slots.Count; i++)
         {
             slots[i].SetItem(itemsToShow[i]);
         }
         
-        // Atualiza a capacidade
+        // Update the capacity display
         UpdateCapacityDisplay();
     }
     
@@ -140,19 +140,19 @@ public class InventoryUI : MonoBehaviour
     
     public void SelectItem(InventorySlot slot)
     {
-        Debug.Log("SelectItem chamado!");
+        Debug.Log("SelectItem called!");
         
-        // Desmarca o slot anterior
+        // Deselect the previously selected slot
         if (selectedSlot != null)
         {
             selectedSlot.SetSelected(false);
         }
         
-        // Marca o novo slot
+        // Highlight the newly selected slot
         selectedSlot = slot;
         selectedSlot.SetSelected(true);
         
-        // Mostra os detalhes do item
+        // Display the item details
         ShowItemDetails(slot.item);
     }
     
@@ -160,7 +160,7 @@ public class InventoryUI : MonoBehaviour
     {
         if (item == null || item.itemData == null)
         {
-            Debug.Log("Item ou ItemData é null, ocultando painel de detalhes");
+            Debug.Log("Item or ItemData is null, hiding item details panel");
             itemDetailsPanel.SetActive(false);
             
             if (itemNameText != null)
@@ -172,7 +172,7 @@ public class InventoryUI : MonoBehaviour
             return;
         }
         
-        Debug.Log($"Mostrando detalhes do item: {item.itemData.itemName}");
+        Debug.Log($"Showing item details: {item.itemData.itemName}");
         itemDetailsPanel.SetActive(true);
         
         if (itemDetailIcon != null)

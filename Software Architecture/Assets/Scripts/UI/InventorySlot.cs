@@ -66,21 +66,21 @@ public class InventorySlot : MonoBehaviour, IPointerClickHandler
     
     public void OnPointerClick(PointerEventData eventData)
     {
-        Debug.Log("Slot clicado!");
+        Debug.Log("Slot clicked!");
         
         if (item == null)
         {
-            Debug.Log("Slot está vazio!");
+            Debug.Log("Slot is empty!");
             return;
         }
         
         if (inventoryUI == null)
         {
-            Debug.LogError("InventoryUI não encontrado!");
+            Debug.LogError("InventoryUI not found!");
             return;
         }
         
-        Debug.Log($"Selecionando item: {item.itemData?.itemName ?? "sem nome"}");
+        Debug.Log($"Selecting item: {item.itemData?.itemName ?? "no name"}");
         inventoryUI.SelectItem(this);
     }
 }

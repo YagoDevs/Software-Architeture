@@ -7,7 +7,7 @@ public class TestInventory : MonoBehaviour
     
     void Start()
     {
-        // Adiciona alguns itens de teste ao iniciar
+        // Add some test items on start
         if (testItems != null && testItems.Length > 0)
         {
             foreach (ItemData item in testItems)
@@ -22,7 +22,7 @@ public class TestInventory : MonoBehaviour
     
     void Update()
     {
-        // Tecla T para adicionar item aleatório
+        // Press T to add a random item
         if (UnityEngine.InputSystem.Keyboard.current.tKey.wasPressedThisFrame)
         {
             if (testItems != null && testItems.Length > 0)
@@ -31,7 +31,7 @@ public class TestInventory : MonoBehaviour
                 if (randomItem != null)
                 {
                     InventoryManager.Instance.AddItem(randomItem, 1);
-                    Debug.Log($"Adicionado: {randomItem.itemName}");
+                    Debug.Log($"Added: {randomItem.itemName}");
                 }
             }
         }
