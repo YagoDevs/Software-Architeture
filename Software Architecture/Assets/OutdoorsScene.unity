@@ -641,6 +641,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
+    - target: {fileID: 5280955224895489636, guid: df0e2b9c94430d647929443a45b6470c, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: f87020b715d9c2e4e84d5efa2208b741, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -751,6 +755,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1222491142}
     m_Modifications:
+    - target: {fileID: 2018221733474160017, guid: efb8d157645cc8144a69f9949d5417ed, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 64793bc0ce770b448add4a8b148d39d6, type: 2}
     - target: {fileID: 8604406061799727623, guid: efb8d157645cc8144a69f9949d5417ed, type: 3}
       propertyPath: m_Name
       value: HealthPotion_Pickup
