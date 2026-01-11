@@ -114,7 +114,10 @@ public class InventoryManager : MonoBehaviour
                 return;
             }
 
-            var playerHealth = player.GetComponent<PlayerHealth>();
+            // Be robust: PlayerHealth might be on parent/child depending on prefab setup.
+            var playerHealth = player.GetComponentInParent<PlayerHealth>();
+            if (playerHealth == null)
+                playerHealth = player.GetComponentInChildren<PlayerHealth>();
             if (playerHealth == null)
             {
                 Debug.LogWarning("Player does not have PlayerHealth. Cannot apply consumable effects.");

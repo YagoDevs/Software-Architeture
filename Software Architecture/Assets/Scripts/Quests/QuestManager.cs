@@ -10,6 +10,11 @@ public class QuestManager : MonoBehaviour
     [Header("Auto start quests (no NPC)")]
     public List<QuestDefinition> startingQuests = new List<QuestDefinition>();
 
+    [Header("Audio (optional)")]
+    public AudioSource audioSource; // if null, uses PlayClipAtPoint
+    public AudioClip questCompleteSfx;
+    [Range(0f, 1f)] public float sfxVolume = 0.9f;
+
     public event Action OnQuestsChanged;
 
     [Serializable]
@@ -39,6 +44,9 @@ public class QuestManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
+
+        if (audioSource == null)
+            audioSource = GetComponentInChildren<AudioSource>();
     }
 
     void OnEnable()
@@ -126,6 +134,7 @@ public class QuestManager : MonoBehaviour
             {
                 q.completed = true;
                 Debug.Log($"QUEST COMPLETE: {q.def.title}");
+                PlaySfx(questCompleteSfx, transform.position);
             }
             changed = true;
         }
@@ -151,14 +160,31 @@ public class QuestManager : MonoBehaviour
             if (q.def.type != QuestType.FetchItem) continue;
             if (q.def.targetItem == null) continue;
 
+            bool wasCompleted = q.completed;
             int qty = inv.GetItemQuantity(q.def.targetItem);
             q.currentAmount = Mathf.Clamp(qty, 0, q.Required);
             if (!q.completed && q.currentAmount >= q.Required)
             {
                 q.completed = true;
                 Debug.Log($"QUEST COMPLETE: {q.def.title}");
+                if (!wasCompleted)
+                    PlaySfx(questCompleteSfx, transform.position);
             }
         }
+    }
+
+    void PlaySfx(AudioClip clip, Vector3 pos)
+    {
+        if (clip == null) return;
+        if (sfxVolume <= 0f) return;
+
+        if (audioSource != null)
+        {
+            audioSource.PlayOneShot(clip, sfxVolume);
+            return;
+        }
+
+        AudioSource.PlayClipAtPoint(clip, pos, sfxVolume);
     }
 
     void RaiseChanged()

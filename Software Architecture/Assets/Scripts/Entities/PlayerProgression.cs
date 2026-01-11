@@ -14,6 +14,11 @@ public class PlayerProgression : MonoBehaviour
     public float damageMultiplierPerLevel = 0.12f;
     public int maxHPPerLevel = 10;
 
+    [Header("Audio (optional)")]
+    public AudioSource audioSource; // if null, uses PlayClipAtPoint
+    public AudioClip levelUpSfx;
+    [Range(0f, 1f)] public float sfxVolume = 0.9f;
+
     public event Action<int, int, int> OnXPChanged; // level, currentXP, xpToNext
     public event Action<int> OnLevelUp; // new level
 
@@ -22,6 +27,8 @@ public class PlayerProgression : MonoBehaviour
     void Awake()
     {
         playerHealth = GetComponent<PlayerHealth>();
+        if (audioSource == null)
+            audioSource = GetComponentInChildren<AudioSource>();
         RaiseXPChanged();
     }
 
@@ -70,7 +77,22 @@ public class PlayerProgression : MonoBehaviour
         }
 
         Debug.Log($"LEVEL UP! Now level {level}");
+        PlaySfx(levelUpSfx, transform.position);
         OnLevelUp?.Invoke(level);
+    }
+
+    void PlaySfx(AudioClip clip, Vector3 pos)
+    {
+        if (clip == null) return;
+        if (sfxVolume <= 0f) return;
+
+        if (audioSource != null)
+        {
+            audioSource.PlayOneShot(clip, sfxVolume);
+            return;
+        }
+
+        AudioSource.PlayClipAtPoint(clip, pos, sfxVolume);
     }
 
     void RaiseXPChanged()
