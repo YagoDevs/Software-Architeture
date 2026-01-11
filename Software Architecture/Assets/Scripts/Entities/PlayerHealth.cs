@@ -35,6 +35,9 @@ public class PlayerHealth : MonoBehaviour
         if (logDamage)
             Debug.Log($"Player took {amount} damage. HP: {currentHP}/{maxHP}");
 
+        if (CombatTextManager.Instance != null)
+            CombatTextManager.Instance.SpawnWorldText(transform.position + Vector3.up * 2f, $"-{amount}", new Color(1f, 0.3f, 0.3f));
+
         if (currentHP == 0)
             Die();
     }
@@ -50,6 +53,9 @@ public class PlayerHealth : MonoBehaviour
         int healed = currentHP - before;
         Debug.Log($"Player healed {healed}. HP: {currentHP}/{maxHP}");
         OnHealthChanged?.Invoke(currentHP, maxHP);
+
+        if (CombatTextManager.Instance != null)
+            CombatTextManager.Instance.SpawnWorldText(transform.position + Vector3.up * 2f, $"+{healed}", new Color(0.35f, 1f, 0.45f));
         return healed > 0;
     }
 

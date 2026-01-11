@@ -4,7 +4,7 @@ using UnityEngine.InputSystem;
 public class SimpleMovement : MonoBehaviour
 {
     [Header("Movement")]
-    public float moveSpeed = 5f;
+    public float moveSpeed = 9f;
     public float rotationSpeed = 10f;
     
     [Header("Camera")]
@@ -12,12 +12,24 @@ public class SimpleMovement : MonoBehaviour
     public float cameraDistance = 5f;
     public float cameraHeight = 2f;
     public float cameraSensitivity = 3f;
+    public bool invertY = false;
+    public bool lockCursorOnStart = true;
+    public Key unlockCursorKey = Key.Escape;
     
     private float cameraRotationX = 0f;
     private float cameraRotationY = 20f;
 
+    void Start()
+    {
+        if (lockCursorOnStart)
+            LockCursor(true);
+    }
+
     void Update()
     {
+        if (Keyboard.current != null && Keyboard.current[unlockCursorKey].wasPressedThisFrame)
+            LockCursor(false);
+
         HandleCameraRotation();
         HandleMovement();
         UpdateCameraPosition();
@@ -25,15 +37,17 @@ public class SimpleMovement : MonoBehaviour
     
     void HandleCameraRotation()
     {
-        // Rotate camera only with right button pressed
-        if (Mouse.current.rightButton.isPressed)
-        {
-            Vector2 mouseDelta = Mouse.current.delta.ReadValue();
-            
-            cameraRotationX += mouseDelta.x * cameraSensitivity * 0.1f;
-            cameraRotationY -= mouseDelta.y * cameraSensitivity * 0.1f;
-            cameraRotationY = Mathf.Clamp(cameraRotationY, 5f, 80f);
-        }
+        // Rotate camera with mouse movement (no need to hold buttons)
+        if (Cursor.lockState != CursorLockMode.Locked) return;
+        if (Mouse.current == null) return;
+
+        Vector2 mouseDelta = Mouse.current.delta.ReadValue();
+
+        cameraRotationX += mouseDelta.x * cameraSensitivity * 0.1f;
+
+        float yDelta = mouseDelta.y * cameraSensitivity * 0.1f;
+        cameraRotationY += invertY ? yDelta : -yDelta;
+        cameraRotationY = Mathf.Clamp(cameraRotationY, 5f, 80f);
     }
     
     void HandleMovement()
@@ -74,5 +88,11 @@ public class SimpleMovement : MonoBehaviour
         
         cameraTransform.position = transform.position + offset;
         cameraTransform.LookAt(transform.position + Vector3.up * cameraHeight);
+    }
+
+    public void LockCursor(bool locked)
+    {
+        Cursor.lockState = locked ? CursorLockMode.Locked : CursorLockMode.None;
+        Cursor.visible = !locked;
     }
 }

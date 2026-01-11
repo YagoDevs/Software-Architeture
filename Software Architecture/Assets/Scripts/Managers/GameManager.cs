@@ -32,6 +32,10 @@ public class GameManager : MonoBehaviour
         if (pauseOnGameOver)
             Time.timeScale = 0f;
 
+        // Let the player use the UI / see cursor on game over.
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+
         if (gameOverUI != null)
             gameOverUI.Show();
         else
@@ -42,6 +46,8 @@ public class GameManager : MonoBehaviour
     {
         Time.timeScale = 1f;
         gameOver = false;
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 }

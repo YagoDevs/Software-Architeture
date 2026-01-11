@@ -65,6 +65,8 @@ public class EnemyAI : MonoBehaviour
         {
             // Clear indication via log (you can also add VFX later)
             Debug.Log($"{config.displayName} attacked for {config.contactDamage}!");
+            if (CombatTextManager.Instance != null)
+                CombatTextManager.Instance.SpawnWorldText(transform.position + Vector3.up * 2f, "ATTACK", new Color(1f, 0.6f, 0.2f));
             playerHealth.TakeDamage(config.contactDamage);
         }
     }

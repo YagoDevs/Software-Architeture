@@ -100,13 +100,22 @@ public class InventoryUI : MonoBehaviour
             RefreshInventory();
             // Pause the game or disable player movement
             Time.timeScale = 0f;
+            SetCursorForUI(true);
         }
         else
         {
             // Resume the game
             Time.timeScale = 1f;
             itemDetailsPanel.SetActive(false);
+            SetCursorForUI(false);
         }
+    }
+
+    void SetCursorForUI(bool uiOpen)
+    {
+        // When inventory is open, we want the cursor free.
+        Cursor.lockState = uiOpen ? CursorLockMode.None : CursorLockMode.Locked;
+        Cursor.visible = uiOpen;
     }
     
     public void RefreshInventory()

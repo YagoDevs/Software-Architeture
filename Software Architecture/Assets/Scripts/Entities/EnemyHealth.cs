@@ -62,6 +62,9 @@ public class EnemyHealth : MonoBehaviour
             Debug.Log($"{n} took {amount} damage. HP: {currentHP}/{MaxHP}");
         }
 
+        if (CombatTextManager.Instance != null)
+            CombatTextManager.Instance.SpawnWorldText(transform.position + Vector3.up * 2f, $"-{amount}", new Color(1f, 0.85f, 0.25f));
+
         if (currentHP == 0)
             Die();
     }
