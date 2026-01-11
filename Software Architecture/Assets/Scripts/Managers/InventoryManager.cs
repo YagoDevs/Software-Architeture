@@ -16,6 +16,12 @@ public class InventoryManager : MonoBehaviour
     [Header("Inventory Data")]
     public List<InventoryItem> items = new List<InventoryItem>();
     public int maxSlots = 25; // 5x5 grid
+
+    [Header("Audio (optional)")]
+    public bool playPickupSfx = true;
+    public AudioSource audioSource; // if null, uses PlayClipAtPoint
+    public AudioClip pickupItemSfx;
+    [Range(0f, 1f)] public float sfxVolume = 0.9f;
     
     void Awake()
     {
@@ -28,6 +34,9 @@ public class InventoryManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
+
+        if (audioSource == null)
+            audioSource = GetComponentInChildren<AudioSource>();
     }
     
     public bool AddItem(ItemData itemData, int quantity = 1)
@@ -52,6 +61,7 @@ public class InventoryManager : MonoBehaviour
                 existingItem.quantity += quantity;
                 currentCapacity += totalWeight;
                 OnInventoryChanged?.Invoke();
+                PlayPickupSfx();
                 return true;
             }
         }
@@ -73,6 +83,7 @@ public class InventoryManager : MonoBehaviour
         currentCapacity += totalWeight;
 
         OnInventoryChanged?.Invoke();
+        PlayPickupSfx();
         
         return true;
     }
@@ -165,6 +176,25 @@ public class InventoryManager : MonoBehaviour
                 total += it.quantity;
         }
         return total;
+    }
+
+    void PlayPickupSfx()
+    {
+        if (!playPickupSfx) return;
+        if (pickupItemSfx == null) return;
+        if (sfxVolume <= 0f) return;
+
+        // Prefer playing at player position so it's audible even if InventoryManager is off-screen.
+        var player = GameObject.FindGameObjectWithTag("Player");
+        Vector3 pos = player != null ? player.transform.position : Vector3.zero;
+
+        if (audioSource != null)
+        {
+            audioSource.PlayOneShot(pickupItemSfx, sfxVolume);
+            return;
+        }
+
+        AudioSource.PlayClipAtPoint(pickupItemSfx, pos, sfxVolume);
     }
 }
 
