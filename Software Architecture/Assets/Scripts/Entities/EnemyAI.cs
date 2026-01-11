@@ -10,6 +10,7 @@ public class EnemyAI : MonoBehaviour
     public Transform target;
 
     protected float nextAttackTime;
+    bool warnedZeroDamage;
 
     void Awake()
     {
@@ -35,7 +36,10 @@ public class EnemyAI : MonoBehaviour
         if (config == null) return;
         if (target == null) return;
 
-        float dist = Vector3.Distance(transform.position, target.position);
+        // Use planar distance (XZ) so differences in model height/scale don't break melee range.
+        Vector2 a = new Vector2(transform.position.x, transform.position.z);
+        Vector2 b = new Vector2(target.position.x, target.position.z);
+        float dist = Vector2.Distance(a, b);
 
         // Move towards player until in attack range
         if (dist > config.attackRange)
@@ -60,7 +64,15 @@ public class EnemyAI : MonoBehaviour
         if (Time.time < nextAttackTime) return;
         nextAttackTime = Time.time + config.attackCooldown;
 
-        var playerHealth = target.GetComponent<PlayerHealth>();
+        if (!warnedZeroDamage && config.contactDamage <= 0)
+        {
+            warnedZeroDamage = true;
+            Debug.LogWarning($"{config.displayName} has contactDamage <= 0. It will not hurt the player. Check EnemyConfig.");
+        }
+
+        var playerHealth = target.GetComponentInParent<PlayerHealth>();
+        if (playerHealth == null)
+            playerHealth = target.GetComponentInChildren<PlayerHealth>();
         if (playerHealth != null)
         {
             // Clear indication via log (you can also add VFX later)
