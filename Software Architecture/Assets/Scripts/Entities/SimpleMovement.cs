@@ -15,12 +15,37 @@ public class SimpleMovement : MonoBehaviour
     public bool invertY = false;
     public bool lockCursorOnStart = true;
     public Key unlockCursorKey = Key.Escape;
+
+    [Header("Animation (optional)")]
+    public Animator animator; // assign the child (Rogue_Hooded) Animator here
+    public string animSpeedParam = "Speed"; // 0 = idle, 1 = run
+    public float animSpeedDamp = 10f;
+    public bool logAnimationWarnings = true;
     
     private float cameraRotationX = 0f;
     private float cameraRotationY = 20f;
+    float move01;
 
     void Start()
     {
+        if (animator == null)
+            animator = GetComponentInChildren<Animator>();
+
+        if (animator != null)
+        {
+            // Avoid cases where animation stops due to culling / settings.
+            animator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
+            animator.updateMode = AnimatorUpdateMode.Normal;
+
+            if (logAnimationWarnings)
+            {
+                if (animator.runtimeAnimatorController == null)
+                    Debug.LogWarning("SimpleMovement: Animator found, but no RuntimeAnimatorController assigned on it.");
+                if (!animator.isActiveAndEnabled)
+                    Debug.LogWarning("SimpleMovement: Animator found, but it is not active/enabled.");
+            }
+        }
+
         if (lockCursorOnStart)
             LockCursor(true);
     }
@@ -33,6 +58,7 @@ public class SimpleMovement : MonoBehaviour
         HandleCameraRotation();
         HandleMovement();
         UpdateCameraPosition();
+        UpdateAnimator();
     }
     
     void HandleCameraRotation()
@@ -60,6 +86,9 @@ public class SimpleMovement : MonoBehaviour
         if (Keyboard.current.sKey.isPressed) vertical = -1f;
         if (Keyboard.current.aKey.isPressed) horizontal = -1f;
         if (Keyboard.current.dKey.isPressed) horizontal = 1f;
+
+        // For animation: 0 idle, 1 moving
+        move01 = Mathf.Clamp01(new Vector2(horizontal, vertical).magnitude);
         
         // Character always looks in the horizontal direction of the camera
         Quaternion targetRotation = Quaternion.Euler(0, cameraRotationX, 0);
@@ -94,5 +123,34 @@ public class SimpleMovement : MonoBehaviour
     {
         Cursor.lockState = locked ? CursorLockMode.Locked : CursorLockMode.None;
         Cursor.visible = !locked;
+    }
+
+    void UpdateAnimator()
+    {
+        if (animator == null) return;
+        if (string.IsNullOrEmpty(animSpeedParam)) return;
+
+        if (logAnimationWarnings && !HasParameter(animator, animSpeedParam))
+        {
+            logAnimationWarnings = false; // warn once
+            Debug.LogWarning($"SimpleMovement: Animator is set but parameter '{animSpeedParam}' was not found on controller '{animator.runtimeAnimatorController?.name}'. Check your Animator Controller parameters.");
+            return;
+        }
+
+        float current = animator.GetFloat(animSpeedParam);
+        float next = Mathf.Lerp(current, move01, animSpeedDamp * Time.deltaTime);
+        animator.SetFloat(animSpeedParam, next);
+    }
+
+    static bool HasParameter(Animator anim, string paramName)
+    {
+        if (anim == null) return false;
+        var ps = anim.parameters;
+        for (int i = 0; i < ps.Length; i++)
+        {
+            if (ps[i].name == paramName)
+                return true;
+        }
+        return false;
     }
 }
