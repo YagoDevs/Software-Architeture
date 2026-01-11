@@ -480,6 +480,7 @@ MonoBehaviour:
   startingQuests:
   - {fileID: 11400000, guid: 78913f4de940a4f93ab5e616890df1d1, type: 2}
   - {fileID: 11400000, guid: 0a75c1aad760245c79020264d69f71c5, type: 2}
+  - {fileID: 11400000, guid: 34a11e6474a1a4c27a327d9901dbe0af, type: 2}
 --- !u!4 &270276817
 Transform:
   m_ObjectHideFlags: 0
