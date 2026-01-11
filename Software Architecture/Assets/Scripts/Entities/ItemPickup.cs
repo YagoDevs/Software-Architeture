@@ -5,6 +5,7 @@ public class ItemPickup : MonoBehaviour
     [Header("Item Configuration")]
     public ItemData itemData;
     public int quantity = 1;
+    public bool autoPickupOnTrigger = false;
     
     [Header("Visual")]
     public float rotationSpeed = 50f;
@@ -30,6 +31,7 @@ public class ItemPickup : MonoBehaviour
     
     void OnTriggerEnter(Collider other)
     {
+        if (!autoPickupOnTrigger) return;
         // Check if the collider belongs to the player
         if (other.CompareTag("Player"))
         {
@@ -46,6 +48,12 @@ public class ItemPickup : MonoBehaviour
                 Debug.Log("Inventory full!");
             }
         }
+    }
+
+    public void Configure(ItemData data, int qty)
+    {
+        itemData = data;
+        quantity = Mathf.Max(1, qty);
     }
 }
 

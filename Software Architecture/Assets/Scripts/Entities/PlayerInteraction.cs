@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using TMPro;
 
 public class PlayerInteraction : MonoBehaviour
 {
@@ -8,6 +9,7 @@ public class PlayerInteraction : MonoBehaviour
     
     [Header("UI Feedback")]
     public GameObject interactionPrompt; // Optional: UI showing "Press F to collect"
+    public TextMeshProUGUI interactionPromptText; // Optional: set text like "Press F - Potion"
     
     private ItemPickup nearbyItem;
     
@@ -36,20 +38,27 @@ public class PlayerInteraction : MonoBehaviour
     {
         // Search all nearby colliders (no layer filter)
         Collider[] hits = Physics.OverlapSphere(transform.position, interactionRange);
-        
+
+        ItemPickup best = null;
+        float bestDist = float.MaxValue;
+
         foreach (Collider hit in hits)
         {
-            ItemPickup item = hit.GetComponent<ItemPickup>();
-            if (item != null)
+            if (hit == null) continue;
+            ItemPickup item = hit.GetComponentInParent<ItemPickup>();
+            if (item == null) continue;
+            if (item.itemData == null) continue;
+
+            float d = Vector3.Distance(transform.position, item.transform.position);
+            if (d < bestDist)
             {
-                nearbyItem = item;
-                ShowInteractionPrompt(true);
-                return;
+                bestDist = d;
+                best = item;
             }
         }
-        
-        nearbyItem = null;
-        ShowInteractionPrompt(false);
+
+        nearbyItem = best;
+        ShowInteractionPrompt(nearbyItem != null);
     }
     
     void CollectItem(ItemPickup item)
@@ -87,6 +96,18 @@ public class PlayerInteraction : MonoBehaviour
         if (interactionPrompt != null)
         {
             interactionPrompt.SetActive(show);
+        }
+
+        if (interactionPromptText != null)
+        {
+            // If user only assigns the TMP text, toggle it directly too.
+            if (interactionPromptText.gameObject != null)
+                interactionPromptText.gameObject.SetActive(show);
+
+            if (show && nearbyItem != null && nearbyItem.itemData != null)
+                interactionPromptText.text = $"Press F - {nearbyItem.itemData.itemName}";
+            else
+                interactionPromptText.text = "Press F";
         }
     }
     

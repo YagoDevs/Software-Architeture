@@ -21,3 +21,5 @@ MonoBehaviour:
   weight: 5
   isConsumable: 1
   healthRestore: 50
+  pickupPrefab: {fileID: 8604406061799727623, guid: efb8d157645cc8144a69f9949d5417ed, type: 3}
+  pickupScaleMultiplier: 1

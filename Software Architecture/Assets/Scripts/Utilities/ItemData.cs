@@ -18,6 +18,10 @@ public class ItemData : ScriptableObject
     [Header("Item Effects")]
     public bool isConsumable = false;
     public int healthRestore = 0;
+
+    [Header("World Pickup (optional)")]
+    public GameObject pickupPrefab; // e.g., HealthPotion_Pickup
+    public float pickupScaleMultiplier = 1f;
 }
 
 public enum ItemCategory

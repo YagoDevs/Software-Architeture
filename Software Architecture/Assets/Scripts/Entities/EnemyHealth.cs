@@ -101,18 +101,36 @@ public class EnemyHealth : MonoBehaviour
 
     void SpawnDrop(ItemData item, int quantity)
     {
-        // Minimal, no prefab required: create a simple sphere with collider + ItemPickup.
-        var go = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        GameObject go = null;
+
+        // Prefer item-specific prefab (e.g., HealthPotion_Pickup)
+        if (item != null && item.pickupPrefab != null)
+        {
+            go = Instantiate(item.pickupPrefab);
+            go.name = $"Drop_{item.itemName}";
+            go.transform.position = transform.position + Vector3.up * 0.5f;
+            if (item.pickupScaleMultiplier != 1f)
+                go.transform.localScale = go.transform.localScale * item.pickupScaleMultiplier;
+
+            var pickup = go.GetComponentInChildren<ItemPickup>();
+            if (pickup == null) pickup = go.AddComponent<ItemPickup>();
+            pickup.Configure(item, Mathf.Max(1, quantity));
+            pickup.autoPickupOnTrigger = false; // keep Press-F interaction
+            return;
+        }
+
+        // Fallback: create a visible sphere pickup
+        go = GameObject.CreatePrimitive(PrimitiveType.Sphere);
         go.name = $"Drop_{item.itemName}";
-        go.transform.position = transform.position + Vector3.up * 0.5f;
-        go.transform.localScale = Vector3.one * 0.5f;
+        go.transform.position = transform.position + Vector3.up * 0.8f;
+        go.transform.localScale = Vector3.one * 1.2f;
 
         var col = go.GetComponent<Collider>();
-        if (col != null) col.isTrigger = false; // PlayerInteraction uses OverlapSphere + F (no trigger needed)
+        if (col != null) col.isTrigger = false;
 
-        var pickup = go.AddComponent<ItemPickup>();
-        pickup.itemData = item;
-        pickup.quantity = Mathf.Max(1, quantity);
+        var fallbackPickup = go.AddComponent<ItemPickup>();
+        fallbackPickup.Configure(item, Mathf.Max(1, quantity));
+        fallbackPickup.autoPickupOnTrigger = false;
     }
 
     void CacheOriginalColors()
