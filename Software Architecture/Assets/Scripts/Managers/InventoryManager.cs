@@ -142,6 +142,27 @@ public class InventoryManager : MonoBehaviour
         
         return items.FindAll(x => x.itemData.category == category);
     }
+
+    public int GetItemQuantity(ItemData itemData)
+    {
+        if (itemData == null) return 0;
+
+        // First: strict reference match (ideal).
+        InventoryItem item = items.Find(x => x != null && x.itemData == itemData);
+        if (item != null) return item.quantity;
+
+        // Fallback: match by itemName (helps if you accidentally created duplicated ItemData assets).
+        // Keep it simple for the project requirements.
+        int total = 0;
+        for (int i = 0; i < items.Count; i++)
+        {
+            var it = items[i];
+            if (it == null || it.itemData == null) continue;
+            if (it.itemData.itemName == itemData.itemName)
+                total += it.quantity;
+        }
+        return total;
+    }
 }
 
 [System.Serializable]
