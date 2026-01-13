@@ -10,17 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 408ac80644fcd432dbba1120f431330c, type: 3}
-  m_Name: EnemyConfig_Slime
+  m_Name: EnemyConfig_Skeleton
   m_EditorClassIdentifier: Assembly-CSharp::EnemyConfig
-  enemyId: slime
-  displayName: Slime
+  enemyId: skeleton_mage
+  displayName: Skeleton Mage
   isBoss: 0
-  maxHP: 20
-  contactDamage: 5
-  moveSpeed: 2
-  attackRange: 1.6
-  attackCooldown: 1
-  xpReward: 5
+  maxHP: 30
+  contactDamage: 8
+  moveSpeed: 5.76
+  attackRange: 80.2
+  attackCooldown: 3
+  xpReward: 10
   drops:
   - item: {fileID: 11400000, guid: 4e6c099731753ef46abb685b3f80e7a3, type: 2}
     chance: 0.4

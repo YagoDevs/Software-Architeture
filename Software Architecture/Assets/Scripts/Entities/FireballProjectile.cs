@@ -7,6 +7,8 @@ public class FireballProjectile : MonoBehaviour
     public float speed = 18f;
     public float lifetime = 3f;
     public LayerMask hitLayers = ~0;
+    public bool hitsEnemies = true;
+    public bool hitsPlayer = false;
 
     [Header("FX (optional)")]
     public bool destroyOnHit = true;
@@ -20,11 +22,14 @@ public class FireballProjectile : MonoBehaviour
         dieAt = Time.time + lifetime;
     }
 
+    // Default launch (player fireball): hits enemies
     public void Launch(Vector3 direction, int dmg, float projectileSpeed, LayerMask layersToHit)
     {
         damage = dmg;
         speed = projectileSpeed;
         hitLayers = layersToHit;
+        hitsEnemies = true;
+        hitsPlayer = false;
 
         direction.y = 0f;
         if (direction.sqrMagnitude < 0.0001f)
@@ -61,12 +66,27 @@ public class FireballProjectile : MonoBehaviour
         // Layer filter
         if (((1 << other.gameObject.layer) & hitLayers) == 0) return;
 
-        var enemy = other.GetComponentInParent<EnemyHealth>();
-        if (enemy != null && !enemy.IsDead)
+        if (hitsEnemies)
         {
-            enemy.TakeDamage(damage);
-            if (destroyOnHit) Destroy(gameObject);
-            return;
+            var enemy = other.GetComponentInParent<EnemyHealth>();
+            if (enemy != null && !enemy.IsDead)
+            {
+                enemy.TakeDamage(damage);
+                if (destroyOnHit) Destroy(gameObject);
+                return;
+            }
+        }
+
+        if (hitsPlayer)
+        {
+            var ph = other.GetComponentInParent<PlayerHealth>();
+            if (ph == null) ph = other.GetComponentInChildren<PlayerHealth>();
+            if (ph != null && !ph.IsDead)
+            {
+                ph.TakeDamage(damage);
+                if (destroyOnHit) Destroy(gameObject);
+                return;
+            }
         }
     }
 }

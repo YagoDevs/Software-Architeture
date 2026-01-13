@@ -168,7 +168,7 @@ MonoBehaviour:
   m_MinValue: 0
   m_MaxValue: 1
   m_WholeNumbers: 0
-  m_Value: 0
+  m_Value: 0.1
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -433,6 +433,37 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!1 &4646412356664038253
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2746088916028335424}
+  m_Layer: 0
+  m_Name: FirePoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2746088916028335424
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4646412356664038253}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.423, y: 0.071, z: 0.177}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7090513410315621976}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5157280488138856352
 GameObject:
   m_ObjectHideFlags: 0
@@ -482,9 +513,10 @@ GameObject:
   - component: {fileID: 8015565734835645048}
   - component: {fileID: 1640691825893344820}
   - component: {fileID: 6623738040244365192}
-  - component: {fileID: 9201045412646745321}
+  - component: {fileID: 2741606835613542068}
+  - component: {fileID: 5932065948462540667}
   m_Layer: 0
-  m_Name: Slime
+  m_Name: Skeleton_Mage_Prefab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -504,6 +536,8 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 3922188198841319418}
+  - {fileID: 4795690550168253435}
+  - {fileID: 2746088916028335424}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &7059313872646072393
@@ -521,7 +555,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5175196710721109386}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -604,7 +638,7 @@ MonoBehaviour:
   flashDuration: 0.08
   logHits: 1
   logDeath: 1
---- !u!114 &9201045412646745321
+--- !u!114 &2741606835613542068
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -613,12 +647,48 @@ MonoBehaviour:
   m_GameObject: {fileID: 5175196710721109386}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8f27b3b3a859e4b949b63cc23985d5c2, type: 3}
+  m_Script: {fileID: 11500000, guid: b79f76eefaa5c4c278c289ab301fe03e, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::EnemyAI
+  m_EditorClassIdentifier: Assembly-CSharp::MageTurretAI
   config: {fileID: 11400000, guid: c46047315824c4524aa212d7aa1bb13b, type: 2}
-  enemyHealth: {fileID: 0}
+  enemyHealth: {fileID: 6623738040244365192}
   target: {fileID: 0}
+  projectilePrefab: {fileID: 821408713193206791, guid: 438d45cc948b04181890006e346c000b, type: 3}
+  firePoint: {fileID: 2746088916028335424}
+  projectileHitLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  projectileSpeed: 18
+  projectileLifetime: 3
+  windup: 0.4
+  rotateSpeed: 8
+  animator: {fileID: 5932065948462540667}
+  castTrigger: Cast
+  audioSource: {fileID: 0}
+  castSfx: {fileID: 8300000, guid: 717db2abedb234634b6652d18d280f8d, type: 3}
+  sfxVolume: 0.56
+--- !u!95 &5932065948462540667
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5175196710721109386}
+  m_Enabled: 1
+  m_Avatar: {fileID: 9000000, guid: 84a5c4cbad144486e87ababfaff20054, type: 3}
+  m_Controller: {fileID: 9100000, guid: afb15b08fbc544e1b9573cb4f257ecd7, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &5255476569919733130
 GameObject:
   m_ObjectHideFlags: 0
@@ -755,3 +825,65 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!1001 &4973960088630105104
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 7090513410315621976}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: 2d2618635ff934a4ca6c12770e31f117, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.02
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 2d2618635ff934a4ca6c12770e31f117, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.95
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 2d2618635ff934a4ca6c12770e31f117, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 2d2618635ff934a4ca6c12770e31f117, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 2d2618635ff934a4ca6c12770e31f117, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 2d2618635ff934a4ca6c12770e31f117, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 2d2618635ff934a4ca6c12770e31f117, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 2d2618635ff934a4ca6c12770e31f117, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 2d2618635ff934a4ca6c12770e31f117, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 2d2618635ff934a4ca6c12770e31f117, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 2d2618635ff934a4ca6c12770e31f117, type: 3}
+      propertyPath: m_Name
+      value: Skeleton_Mage
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 2d2618635ff934a4ca6c12770e31f117, type: 3}
+--- !u!4 &4795690550168253435 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 2d2618635ff934a4ca6c12770e31f117, type: 3}
+  m_PrefabInstance: {fileID: 4973960088630105104}
+  m_PrefabAsset: {fileID: 0}
