@@ -6,6 +6,15 @@ public class EnemyHealth : MonoBehaviour
     [Header("Config")]
     public EnemyConfig config;
 
+    [Header("Animation / Death (optional)")]
+    public Animator animator;
+    public string dieTrigger = "Die";
+    public bool delayDestroyOnDeath = true;
+    public float destroyDelay = 2.0f; // time to let death animation play
+    public bool disableCollidersOnDeath = true;
+    public bool disableAIOnDeath = true;
+    public bool debugDeathLogs = false;
+
     [Header("Runtime")]
     [SerializeField] int currentHP;
 
@@ -25,6 +34,7 @@ public class EnemyHealth : MonoBehaviour
 
     Color[] originalColors;
     float flashUntil;
+    bool hasDied;
 
     void Awake()
     {
@@ -34,6 +44,8 @@ public class EnemyHealth : MonoBehaviour
         // If not set in Inspector, start full HP.
         if (currentHP <= 0) currentHP = MaxHP;
         currentHP = Mathf.Clamp(currentHP, 1, MaxHP);
+
+        if (animator == null) animator = GetComponentInChildren<Animator>();
 
         CacheOriginalColors();
         OnHealthChanged?.Invoke(currentHP, MaxHP);
@@ -71,6 +83,9 @@ public class EnemyHealth : MonoBehaviour
 
     void Die()
     {
+        if (hasDied) return;
+        hasDied = true;
+
         if (logDeath)
         {
             string n = (config != null && !string.IsNullOrEmpty(config.displayName)) ? config.displayName : name;
@@ -81,7 +96,35 @@ public class EnemyHealth : MonoBehaviour
         CombatEvents.RaiseEnemyKilled(config);
 
         TryDropItems();
-        Destroy(gameObject);
+
+        if (animator != null && !string.IsNullOrEmpty(dieTrigger))
+            animator.SetTrigger(dieTrigger);
+        else if (debugDeathLogs)
+            Debug.LogWarning($"{name}: EnemyHealth has no Animator or dieTrigger is empty, so no death animation will play.");
+
+        if (disableAIOnDeath)
+        {
+            var ai = GetComponent<EnemyAI>();
+            if (ai != null) ai.enabled = false;
+
+            var mage = GetComponent<MageTurretAI>();
+            if (mage != null) mage.enabled = false;
+
+            var boss = GetComponent<BossController>();
+            if (boss != null) boss.enabled = false;
+        }
+
+        if (disableCollidersOnDeath)
+        {
+            var cols = GetComponentsInChildren<Collider>();
+            for (int i = 0; i < cols.Length; i++)
+                cols[i].enabled = false;
+        }
+
+        if (delayDestroyOnDeath)
+            Destroy(gameObject, Mathf.Max(0.05f, destroyDelay));
+        else
+            Destroy(gameObject);
     }
 
     void TryDropItems()
