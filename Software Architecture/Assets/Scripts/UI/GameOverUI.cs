@@ -1,15 +1,29 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
+using TMPro;
 
 public class GameOverUI : MonoBehaviour
 {
     [Header("UI")]
     public GameObject panel;
+    public Button restartButton;
+    public TextMeshProUGUI titleText;
+    public string title = "GAME OVER";
 
     void Awake()
     {
         if (panel != null)
             panel.SetActive(false);
+
+        if (titleText != null)
+            titleText.text = title;
+
+        if (restartButton != null)
+        {
+            restartButton.onClick.RemoveListener(Restart);
+            restartButton.onClick.AddListener(Restart);
+        }
     }
 
     void Update()
@@ -25,6 +39,9 @@ public class GameOverUI : MonoBehaviour
     {
         if (panel != null)
             panel.SetActive(true);
+
+        if (titleText != null)
+            titleText.text = title;
     }
 
     public void Hide()
