@@ -66,9 +66,6 @@ public class BossSpawnTrigger : MonoBehaviour
             // Prefer new configurable boss controller, fallback to older turret AI.
             var ctrl = boss.GetComponentInChildren<BossController>();
             if (ctrl != null) { ctrl.Activate(); return; }
-
-            var ai = boss.GetComponentInChildren<BossTurretAI>();
-            if (ai != null) ai.Activate();
         }
     }
 }

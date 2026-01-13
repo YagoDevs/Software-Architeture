@@ -59,7 +59,7 @@ public class EnemySpawner : MonoBehaviour
             aliveCount = FindObjectsByType<EnemyHealth>(FindObjectsSortMode.None).Length;
 
             // If a boss already exists in scene, don't spawn another one.
-            if (FindObjectsByType<BossAI>(FindObjectsSortMode.None).Length > 0)
+            if (FindObjectsByType<BossController>(FindObjectsSortMode.None).Length > 0)
                 bossSpawned = true;
         }
 
