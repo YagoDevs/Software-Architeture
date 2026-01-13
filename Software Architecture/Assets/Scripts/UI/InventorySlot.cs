@@ -17,9 +17,20 @@ public class InventorySlot : MonoBehaviour, IPointerClickHandler
     
     void Start()
     {
-        inventoryUI = GetComponentInParent<InventoryUI>();
+        // InventoryUIManager may not be a parent in the hierarchy (common setup),
+        // so we allow explicit injection + a safe fallback lookup.
+        if (inventoryUI == null)
+            inventoryUI = GetComponentInParent<InventoryUI>();
+        if (inventoryUI == null)
+            inventoryUI = FindFirstObjectByType<InventoryUI>();
+
         if (selectedBorder != null)
             selectedBorder.SetActive(false);
+    }
+
+    public void Initialize(InventoryUI ui)
+    {
+        inventoryUI = ui;
     }
     
     public void SetItem(InventoryItem newItem)

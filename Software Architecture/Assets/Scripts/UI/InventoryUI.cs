@@ -26,6 +26,7 @@ public class InventoryUI : MonoBehaviour
     [Header("Buttons")]
     public Button useButton;
     public Button dropButton;
+    public bool debugButtonLogs = true;
     
     [Header("Category Buttons")]
     public Button allButton;
@@ -47,12 +48,7 @@ public class InventoryUI : MonoBehaviour
         inventoryPanel.SetActive(false);
         itemDetailsPanel.SetActive(false);
         
-        // Configure action buttons
-        if (useButton != null)
-            useButton.onClick.AddListener(UseSelectedItem);
-        
-        if (dropButton != null)
-            dropButton.onClick.AddListener(DropSelectedItem);
+        EnsureButtonWiring();
         
         // Configure category buttons
         if (allButton != null)
@@ -77,6 +73,36 @@ public class InventoryUI : MonoBehaviour
             ToggleInventory();
         }
     }
+
+    void EnsureButtonWiring()
+    {
+        // If references were not set in Inspector, try auto-find by name in children
+        if (useButton == null)
+            useButton = transform.Find("UseButton")?.GetComponent<Button>() ?? GetComponentInChildren<Button>(true);
+
+        if (dropButton == null)
+            dropButton = transform.Find("DropButton")?.GetComponent<Button>();
+
+        if (useButton != null)
+        {
+            useButton.onClick.RemoveListener(UseSelectedItem);
+            useButton.onClick.AddListener(UseSelectedItem);
+        }
+        else if (debugButtonLogs)
+        {
+            Debug.LogWarning("InventoryUI: useButton reference is missing. Assign it in Inspector.");
+        }
+
+        if (dropButton != null)
+        {
+            dropButton.onClick.RemoveListener(DropSelectedItem);
+            dropButton.onClick.AddListener(DropSelectedItem);
+        }
+        else if (debugButtonLogs)
+        {
+            Debug.LogWarning("InventoryUI: dropButton reference is missing. Assign it in Inspector.");
+        }
+    }
     
     void CreateSlots()
     {
@@ -86,6 +112,8 @@ public class InventoryUI : MonoBehaviour
         {
             GameObject slotObj = Instantiate(slotPrefab, slotsParent);
             InventorySlot slot = slotObj.GetComponent<InventorySlot>();
+            if (slot != null)
+                slot.Initialize(this);
             slots.Add(slot);
         }
     }
@@ -97,6 +125,7 @@ public class InventoryUI : MonoBehaviour
         
         if (isActive)
         {
+            EnsureButtonWiring();
             RefreshInventory();
             // Pause the game or disable player movement
             Time.timeScale = 0f;
@@ -201,12 +230,21 @@ public class InventoryUI : MonoBehaviour
     
     void UseSelectedItem()
     {
+        if (debugButtonLogs)
+            Debug.Log("InventoryUI: Use button clicked.");
+
         if (selectedSlot != null && selectedSlot.item != null)
         {
+            if (debugButtonLogs)
+                Debug.Log($"InventoryUI: Trying to use '{selectedSlot.item.itemData?.itemName ?? "NULL"}'");
             InventoryManager.Instance.UseItem(selectedSlot.item);
             RefreshInventory();
             itemDetailsPanel.SetActive(false);
             selectedSlot = null;
+        }
+        else if (debugButtonLogs)
+        {
+            Debug.LogWarning("InventoryUI: No selected item to use.");
         }
     }
     

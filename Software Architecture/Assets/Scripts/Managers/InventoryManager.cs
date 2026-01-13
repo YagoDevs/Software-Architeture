@@ -112,7 +112,11 @@ public class InventoryManager : MonoBehaviour
     public void UseItem(InventoryItem item)
     {
         if (item == null || item.itemData == null) return;
-        if (!item.itemData.isConsumable) return;
+        if (!item.itemData.isConsumable)
+        {
+            Debug.LogWarning($"Item '{item.itemData.itemName}' is not consumable (isConsumable=false).");
+            return;
+        }
 
         // Gameplay logic for consuming items (simple + extensible)
         // Example: HP potion
@@ -140,8 +144,14 @@ public class InventoryManager : MonoBehaviour
             {
                 // Don't waste potion when already full HP (simple UX)
                 Debug.Log("HP already full. Consumable not used.");
+                if (CombatTextManager.Instance != null)
+                    CombatTextManager.Instance.SpawnWorldText(player.transform.position + Vector3.up * 2f, "HP FULL", new Color(1f, 0.9f, 0.2f));
                 return;
             }
+        }
+        else
+        {
+            Debug.LogWarning($"Consumable '{item.itemData.itemName}' has healthRestore <= 0. Nothing to apply.");
         }
 
             Debug.Log($"Using {item.itemData.itemName}");
