@@ -21,14 +21,20 @@ public class EnemySpawner : MonoBehaviour
     public bool stopSpawningAfterBossSpawned = false;
     public bool stopSpawningAfterBossKilled = false;
 
+    [Header("Stop Spawning (Quest)")]
+    public bool stopSpawningWhenQuestCompleted = false;
+    public string questIdToStopSpawning;
+
     [Header("Optional Spawn Points")]
     public List<Transform> spawnPoints = new List<Transform>();
+    public bool useSequentialSpawnPoints = false;
 
     float nextSpawnTime;
     int aliveCount;
     int killCount;
     bool bossSpawned;
     bool stopSpawning;
+    int nextSpawnPointIndex;
 
     Transform player;
 
@@ -56,6 +62,8 @@ public class EnemySpawner : MonoBehaviour
             if (FindObjectsByType<BossAI>(FindObjectsSortMode.None).Length > 0)
                 bossSpawned = true;
         }
+
+        nextSpawnPointIndex = 0;
     }
 
     void Update()
@@ -63,6 +71,15 @@ public class EnemySpawner : MonoBehaviour
         if (stopSpawning) return;
         if (Time.time < nextSpawnTime) return;
         nextSpawnTime = Time.time + spawnInterval;
+
+        if (stopSpawningWhenQuestCompleted && QuestManager.Instance != null && !string.IsNullOrEmpty(questIdToStopSpawning))
+        {
+            if (QuestManager.Instance.IsQuestCompleted(questIdToStopSpawning))
+            {
+                stopSpawning = true;
+                return;
+            }
+        }
 
         if (player == null)
         {
@@ -128,7 +145,23 @@ public class EnemySpawner : MonoBehaviour
         // Use spawn points if provided
         if (spawnPoints != null && spawnPoints.Count > 0)
         {
-            var sp = spawnPoints[Random.Range(0, spawnPoints.Count)];
+            Transform sp = null;
+            if (useSequentialSpawnPoints)
+            {
+                // round-robin across the list
+                for (int tries = 0; tries < spawnPoints.Count; tries++)
+                {
+                    int idx = nextSpawnPointIndex % spawnPoints.Count;
+                    nextSpawnPointIndex = (nextSpawnPointIndex + 1) % spawnPoints.Count;
+                    sp = spawnPoints[idx];
+                    if (sp != null) break;
+                }
+            }
+            else
+            {
+                sp = spawnPoints[Random.Range(0, spawnPoints.Count)];
+            }
+
             if (sp != null) return sp.position;
         }
 

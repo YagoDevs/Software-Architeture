@@ -10,6 +10,9 @@ public class QuestManager : MonoBehaviour
     [Header("Auto start quests (no NPC)")]
     public List<QuestDefinition> startingQuests = new List<QuestDefinition>();
 
+    [Header("Runtime Overrides (optional)")]
+    public List<QuestOverride> overrides = new List<QuestOverride>();
+
     [Header("Audio (optional)")]
     public AudioSource audioSource; // if null, uses PlayClipAtPoint
     public AudioClip questCompleteSfx;
@@ -23,8 +26,16 @@ public class QuestManager : MonoBehaviour
         public QuestDefinition def;
         public int currentAmount;
         public bool completed;
+        public int requiredOverride;
 
-        public int Required => def != null ? def.requiredAmount : 0;
+        public int Required => requiredOverride > 0 ? requiredOverride : (def != null ? def.requiredAmount : 0);
+    }
+
+    [Serializable]
+    public class QuestOverride
+    {
+        public string questId;
+        [Min(1)] public int requiredAmount = 1;
     }
 
     readonly List<QuestState> active = new List<QuestState>();
@@ -104,15 +115,43 @@ public class QuestManager : MonoBehaviour
             if (def == null) continue;
             if (active.Any(q => q.def == def)) continue;
 
+            int requiredOverride = 0;
+            if (overrides != null && overrides.Count > 0 && !string.IsNullOrEmpty(def.questId))
+            {
+                for (int i = 0; i < overrides.Count; i++)
+                {
+                    var ov = overrides[i];
+                    if (ov == null) continue;
+                    if (string.IsNullOrEmpty(ov.questId)) continue;
+                    if (ov.questId != def.questId) continue;
+                    requiredOverride = Mathf.Max(1, ov.requiredAmount);
+                    break;
+                }
+            }
+
             active.Add(new QuestState
             {
                 def = def,
                 currentAmount = 0,
-                completed = false
+                completed = false,
+                requiredOverride = requiredOverride
             });
         }
 
         RaiseChanged();
+    }
+
+    public bool IsQuestCompleted(string questId)
+    {
+        if (string.IsNullOrEmpty(questId)) return false;
+        for (int i = 0; i < active.Count; i++)
+        {
+            var q = active[i];
+            if (q == null || q.def == null) continue;
+            if (q.def.questId != questId) continue;
+            return q.completed;
+        }
+        return false;
     }
 
     void HandleEnemyKilled(EnemyConfig config)

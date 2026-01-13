@@ -185,7 +185,7 @@ GameObject:
   - component: {fileID: 3129580702144772229}
   - component: {fileID: 786518894564188101}
   - component: {fileID: 2925367410463600175}
-  - component: {fileID: 4804029944991561711}
+  - component: {fileID: 54460392560704202}
   m_Layer: 0
   m_Name: Boss
   m_TagString: Untagged
@@ -307,7 +307,7 @@ MonoBehaviour:
   flashDuration: 0.08
   logHits: 1
   logDeath: 1
---- !u!114 &4804029944991561711
+--- !u!114 &54460392560704202
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -316,15 +316,18 @@ MonoBehaviour:
   m_GameObject: {fileID: 1549911190456035079}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7fc242857e99140e79a25bad876f1202, type: 3}
+  m_Script: {fileID: 11500000, guid: 611960905a22f4540bcde7bda4042692, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::BossAI
-  config: {fileID: 11400000, guid: 069823d9b9160415d99ad7c8f6038cbb, type: 2}
-  enemyHealth: {fileID: 0}
+  m_EditorClassIdentifier: Assembly-CSharp::BossController
+  activeOnStart: 0
+  isActive: 0
   target: {fileID: 0}
-  patternSwitchInterval: 4
-  slamDamageMultiplier: 2
-  slamRangeMultiplier: 1.35
+  faceTargetRotateSpeed: 8
+  attacks:
+  - {fileID: 11400000, guid: a7dee16ba2db340fcadae87ed85e6331, type: 2}
+  - {fileID: 11400000, guid: bc9f017be3b8a4f3193ceeaf93a74cae, type: 2}
+  animator: {fileID: 0}
+  enemyHealth: {fileID: 2925367410463600175}
 --- !u!1 &3857430090933493491
 GameObject:
   m_ObjectHideFlags: 0

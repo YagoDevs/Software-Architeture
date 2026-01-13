@@ -67,13 +67,13 @@ public class SimpleMovement : MonoBehaviour
         if (Cursor.lockState != CursorLockMode.Locked) return;
         if (Mouse.current == null) return;
 
-        Vector2 mouseDelta = Mouse.current.delta.ReadValue();
-
-        cameraRotationX += mouseDelta.x * cameraSensitivity * 0.1f;
+            Vector2 mouseDelta = Mouse.current.delta.ReadValue();
+            
+            cameraRotationX += mouseDelta.x * cameraSensitivity * 0.1f;
 
         float yDelta = mouseDelta.y * cameraSensitivity * 0.1f;
         cameraRotationY += invertY ? yDelta : -yDelta;
-        cameraRotationY = Mathf.Clamp(cameraRotationY, 5f, 80f);
+            cameraRotationY = Mathf.Clamp(cameraRotationY, 5f, 80f);
     }
     
     void HandleMovement()

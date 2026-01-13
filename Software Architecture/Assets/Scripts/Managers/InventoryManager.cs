@@ -144,8 +144,8 @@ public class InventoryManager : MonoBehaviour
             }
         }
 
-        Debug.Log($"Using {item.itemData.itemName}");
-        RemoveItem(item.itemData, 1);
+            Debug.Log($"Using {item.itemData.itemName}");
+            RemoveItem(item.itemData, 1);
         // RemoveItem already triggers OnInventoryChanged.
     }
     
