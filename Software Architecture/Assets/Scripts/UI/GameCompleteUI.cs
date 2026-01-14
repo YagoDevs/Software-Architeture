@@ -9,7 +9,7 @@ public static class GameCompleteUI
 
     public static bool IsShown => GameObject.Find(RootName) != null;
 
-    public static void Show(string title = "Fim de jogo!", string body = "Você completou todas as missões.", string buttonText = "Jogar novamente")
+    public static void Show(string title = "Endgame!", string body = "You completed all quests!", string buttonText = "Play Again")
     {
         if (IsShown) return;
 
