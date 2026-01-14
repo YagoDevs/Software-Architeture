@@ -54,6 +54,7 @@ Este arquivo explica **o que cada classe faz** e **como elas se interligam**.
 
 ### `SimpleMovement`
 - **Responsabilidade**: WASD + câmera com mouse (cursor lock/unlock) e envia **Speed** para o Animator do player.
+- **Nota importante (colisão)**: o movimento agora usa `CharacterController.Move(...)` (em vez de `transform.position += ...`), para **respeitar BoxCollider/colisões** e evitar atravessar paredes.
 - **Liga com**:
   - `InventoryUI` desbloqueia cursor quando inventário abre.
 
@@ -128,10 +129,15 @@ Este arquivo explica **o que cada classe faz** e **como elas se interligam**.
 - **Responsabilidade**: define um ataque do boss (tipo, dano, range, cooldown, windup, trigger de animação).
 
 ### `BossController`
-- **Responsabilidade**: executa ataques do boss com base na lista de `BossAttackDefinition` (sem hardcode).
+- **Responsabilidade**: persegue o player (chase) e executa ataques do boss com base na lista de `BossAttackDefinition` (sem hardcode).
 - **Liga com**:
-  - Vira para o player e escolhe o primeiro ataque disponível em range e sem cooldown.
+  - Persegue até entrar em range e então para para atacar.
+  - Pode alternar ataques em ordem (round-robin) e aplicar um delay global entre skills.
   - Aplica dano no `PlayerHealth`.
+  - **Parâmetros importantes (Inspector)**:
+    - `alternateAttacks`: alterna `Attack1`/`Attack2` em ordem (em vez de “primeiro disponível”).
+    - `globalDelayBetweenAttacks`: delay global entre skills (ex.: 2s).
+    - `chaseTarget` / `moveSpeed`: perseguição/velocidade.
 
 ---
 
@@ -192,6 +198,17 @@ Este arquivo explica **o que cada classe faz** e **como elas se interligam**.
   - Escuta `CombatEvents.OnEnemyKilled` (kill quest).
   - Escuta `InventoryManager.OnInventoryChanged` (fetch quest).
   - Notifica UI via `OnQuestsChanged`.
+  - Quando **todas as quests** estão completas, mostra a UI de fim de jogo (`GameCompleteUI`) após um delay (`endgameDelaySeconds`, padrão 3s).
+
+---
+
+## Testes (Unity Test Framework)
+Os testes PlayMode estão em `Assets/Tests/PlayMode/`:
+- `PlayerTests.cs`
+- `EnemyTests.cs`
+- `QuestTests.cs`
+
+Eles rodam no **Test Runner → PlayMode**.
 
 ---
 
