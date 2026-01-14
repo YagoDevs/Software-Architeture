@@ -15,7 +15,7 @@ MonoBehaviour:
   enemyId: boss
   displayName: Boss
   isBoss: 1
-  maxHP: 20
+  maxHP: 200
   contactDamage: 5
   moveSpeed: 2
   attackRange: 1.6

@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -43,6 +44,9 @@ public class QuestManager : MonoBehaviour
     public IReadOnlyList<QuestState> ActiveQuests => active;
 
     InventoryManager hookedInventory;
+    bool endgameShown;
+    [Header("Endgame UI (optional)")]
+    [Min(0f)] public float endgameDelaySeconds = 3f;
 
     void Awake()
     {
@@ -229,6 +233,33 @@ public class QuestManager : MonoBehaviour
     void RaiseChanged()
     {
         OnQuestsChanged?.Invoke();
+        TryShowEndgameIfAllCompleted();
+    }
+
+    void TryShowEndgameIfAllCompleted()
+    {
+        if (endgameShown) return;
+        if (active == null || active.Count == 0) return;
+
+        bool allCompleted = true;
+        for (int i = 0; i < active.Count; i++)
+        {
+            var q = active[i];
+            if (q == null || q.def == null) continue;
+            allCompleted &= q.completed;
+        }
+
+        if (!allCompleted) return;
+        endgameShown = true;
+        StartCoroutine(ShowEndgameAfterDelay());
+    }
+
+    IEnumerator ShowEndgameAfterDelay()
+    {
+        float delay = Mathf.Max(0f, endgameDelaySeconds);
+        if (delay > 0f)
+            yield return new WaitForSecondsRealtime(delay);
+        GameCompleteUI.Show();
     }
 }
 

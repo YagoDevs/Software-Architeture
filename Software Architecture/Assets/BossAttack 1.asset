@@ -15,10 +15,10 @@ MonoBehaviour:
   attackId: boss_attack2
   displayName: SlamAOE
   type: 1
-  cooldown: 1.2
+  cooldown: 2
   windup: 0.2
   damage: 18
-  range: 4
+  range: 12
   animationTrigger: Attack2
   aoeRadius: 6
   dashDistance: 6

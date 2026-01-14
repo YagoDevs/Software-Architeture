@@ -15,10 +15,10 @@ MonoBehaviour:
   attackId: boss_attack1
   displayName: MeleeHit
   type: 0
-  cooldown: 1.2
+  cooldown: 2
   windup: 0.2
   damage: 12
-  range: 4
+  range: 6
   animationTrigger: Attack1
   aoeRadius: 4
   dashDistance: 6
