@@ -286,6 +286,9 @@ MonoBehaviour:
   enemyHealth: {fileID: 0}
   animator: {fileID: 3208777783893312798}
   target: {fileID: 0}
+  targetTag: Player
+  fallbackFindPlayerHealth: 1
+  reacquireInterval: 0.75
   animSpeedParam: Speed
   animSpeedDamp: 10
   attackTrigger: Attack
@@ -863,6 +866,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2100000, guid: f8f3ce06e67cb4bbfa8291b0933a54f1, type: 2}
     - target: {fileID: 5866666021909216657, guid: 7f556ff016e4443bc99e151224dd4726, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5866666021909216657, guid: 7f556ff016e4443bc99e151224dd4726, type: 3}
       propertyPath: m_Controller
       value: 
       objectReference: {fileID: 9100000, guid: e90cca6c8deab41c9a87c0aebf41cdeb, type: 2}
@@ -872,9 +879,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5866666021909216657, guid: 7f556ff016e4443bc99e151224dd4726, type: 3}
       propertyPath: m_ApplyRootMotion
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 5866666021909216657, guid: 7f556ff016e4443bc99e151224dd4726, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []

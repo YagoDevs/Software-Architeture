@@ -9,6 +9,14 @@ public class EnemyAI : MonoBehaviour
 
     [Header("Target")]
     public Transform target;
+    [Tooltip("If Target is not set, EnemyAI will try to find a target by Tag (default: Player).")]
+    public string targetTag = "Player";
+    [Tooltip("If Target is not set and tag search fails, EnemyAI will try to find a PlayerHealth in the scene.")]
+    public bool fallbackFindPlayerHealth = true;
+    [Min(0.1f)]
+    public float reacquireInterval = 0.75f;
+    float nextReacquireTime;
+    bool warnedNoTarget;
 
     protected float nextAttackTime;
     bool warnedZeroDamage;
@@ -19,6 +27,7 @@ public class EnemyAI : MonoBehaviour
     public string attackTrigger = "Attack";
     float move01;
     bool warnedAnim;
+    bool warnedNoAnimator;
 
     void Awake()
     {
@@ -28,23 +37,32 @@ public class EnemyAI : MonoBehaviour
             if (enemyHealth != null) config = enemyHealth.config;
         }
 
-        if (animator == null) animator = GetComponentInChildren<Animator>();
+        animator = ResolveAnimator(animator);
     }
 
     void Start()
     {
-        if (target == null)
-        {
-            var player = GameObject.FindGameObjectWithTag("Player");
-            if (player != null) target = player.transform;
-        }
+        TryAcquireTarget(force: true);
     }
 
     void Update()
     {
         if (enemyHealth != null && enemyHealth.IsDead) return;
         if (config == null) return;
-        if (target == null) return;
+        if (target == null)
+        {
+            TryAcquireTarget(force: false);
+            if (target == null)
+            {
+                if (!warnedNoTarget)
+                {
+                    warnedNoTarget = true;
+                    Debug.LogWarning($"{name}: EnemyAI has no target. Set 'target' in Inspector or tag your player as '{targetTag}'. (Fallback search by PlayerHealth is {(fallbackFindPlayerHealth ? "ON" : "OFF")}).");
+                }
+                UpdateAnimator(); // keep animator stable even without target
+                return;
+            }
+        }
 
         // Use planar distance (XZ) so differences in model height/scale don't break melee range.
         Vector2 a = new Vector2(transform.position.x, transform.position.z);
@@ -71,6 +89,42 @@ public class EnemyAI : MonoBehaviour
         }
 
         UpdateAnimator();
+    }
+
+    void TryAcquireTarget(bool force)
+    {
+        if (!force && Time.time < nextReacquireTime) return;
+        nextReacquireTime = Time.time + Mathf.Max(0.1f, reacquireInterval);
+
+        // 1) Prefer tag-based lookup (fast, conventional)
+        if (!string.IsNullOrEmpty(targetTag))
+        {
+            try
+            {
+                var player = GameObject.FindGameObjectWithTag(targetTag);
+                if (player != null)
+                {
+                    target = player.transform;
+                    warnedNoTarget = false;
+                    return;
+                }
+            }
+            catch (UnityException)
+            {
+                // Tag might not exist in Tag Manager; ignore and fallback
+            }
+        }
+
+        // 2) Fallback: find any PlayerHealth in the scene
+        if (fallbackFindPlayerHealth)
+        {
+            var ph = FindObjectOfType<PlayerHealth>();
+            if (ph != null)
+            {
+                target = ph.transform;
+                warnedNoTarget = false;
+            }
+        }
     }
 
     protected virtual void TryAttack()
@@ -103,7 +157,15 @@ public class EnemyAI : MonoBehaviour
 
     void UpdateAnimator()
     {
-        if (animator == null) return;
+        if (animator == null)
+        {
+            if (!warnedNoAnimator)
+            {
+                warnedNoAnimator = true;
+                Debug.LogWarning($"{name}: EnemyAI could not find an Animator to drive. Add an Animator (ideally on the model with SkinnedMeshRenderer) or assign the 'animator' field.");
+            }
+            return;
+        }
         if (string.IsNullOrEmpty(animSpeedParam)) return;
 
         if (!warnedAnim)
@@ -133,6 +195,43 @@ public class EnemyAI : MonoBehaviour
                 return true;
         }
         return false;
+    }
+
+    Animator ResolveAnimator(Animator preferred)
+    {
+        // If explicitly assigned and valid, keep it.
+        if (preferred != null) return preferred;
+
+        var anims = GetComponentsInChildren<Animator>(true);
+        if (anims == null || anims.Length == 0) return null;
+        if (anims.Length == 1) return anims[0];
+
+        // Prefer an Animator that actually drives a skinned mesh (typical for characters),
+        // and avoid the Animator on the same GameObject as this AI when there are multiple.
+        Animator best = null;
+        int bestScore = int.MinValue;
+        for (int i = 0; i < anims.Length; i++)
+        {
+            var a = anims[i];
+            if (a == null) continue;
+
+            int score = 0;
+            if (a.transform != transform) score += 10; // prefer child/model animator over root
+            if (a.GetComponentInChildren<SkinnedMeshRenderer>(true) != null) score += 5;
+            if (a.runtimeAnimatorController != null) score += 1;
+
+            // If we already know the param name, prefer controllers that contain it.
+            if (!string.IsNullOrEmpty(animSpeedParam) && HasParameter(a, animSpeedParam)) score += 2;
+            if (!string.IsNullOrEmpty(attackTrigger) && HasParameter(a, attackTrigger)) score += 1;
+
+            if (score > bestScore)
+            {
+                bestScore = score;
+                best = a;
+            }
+        }
+
+        return best != null ? best : anims[0];
     }
 }
 

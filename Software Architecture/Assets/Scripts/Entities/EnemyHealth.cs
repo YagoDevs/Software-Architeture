@@ -35,6 +35,7 @@ public class EnemyHealth : MonoBehaviour
     Color[] originalColors;
     float flashUntil;
     bool hasDied;
+    bool warnedNoAnimator;
 
     void Awake()
     {
@@ -45,7 +46,7 @@ public class EnemyHealth : MonoBehaviour
         if (currentHP <= 0) currentHP = MaxHP;
         currentHP = Mathf.Clamp(currentHP, 1, MaxHP);
 
-        if (animator == null) animator = GetComponentInChildren<Animator>();
+        animator = ResolveAnimator(animator);
 
         CacheOriginalColors();
         OnHealthChanged?.Invoke(currentHP, MaxHP);
@@ -97,7 +98,15 @@ public class EnemyHealth : MonoBehaviour
 
         TryDropItems();
 
-        if (animator != null && !string.IsNullOrEmpty(dieTrigger))
+        if (animator == null)
+        {
+            if (!warnedNoAnimator && debugDeathLogs)
+            {
+                warnedNoAnimator = true;
+                Debug.LogWarning($"{name}: EnemyHealth could not find an Animator to play death animation. Assign 'animator' or ensure the model has an Animator.");
+            }
+        }
+        else if (!string.IsNullOrEmpty(dieTrigger))
             animator.SetTrigger(dieTrigger);
         else if (debugDeathLogs)
             Debug.LogWarning($"{name}: EnemyHealth has no Animator or dieTrigger is empty, so no death animation will play.");
@@ -209,6 +218,34 @@ public class EnemyHealth : MonoBehaviour
             if (r != null && r.material != null)
                 r.material.color = originalColors[i];
         }
+    }
+
+    Animator ResolveAnimator(Animator preferred)
+    {
+        if (preferred != null) return preferred;
+
+        var anims = GetComponentsInChildren<Animator>(true);
+        if (anims == null || anims.Length == 0) return null;
+        if (anims.Length == 1) return anims[0];
+
+        Animator best = null;
+        int bestScore = int.MinValue;
+        for (int i = 0; i < anims.Length; i++)
+        {
+            var a = anims[i];
+            if (a == null) continue;
+            int score = 0;
+            if (a.transform != transform) score += 10;
+            if (a.GetComponentInChildren<SkinnedMeshRenderer>(true) != null) score += 5;
+            if (a.runtimeAnimatorController != null) score += 1;
+            if (score > bestScore)
+            {
+                bestScore = score;
+                best = a;
+            }
+        }
+
+        return best != null ? best : anims[0];
     }
 }
 

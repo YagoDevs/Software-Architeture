@@ -632,6 +632,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyHealth
   config: {fileID: 11400000, guid: c46047315824c4524aa212d7aa1bb13b, type: 2}
+  animator: {fileID: 5932065948462540667}
+  dieTrigger: Die
+  delayDestroyOnDeath: 1
+  destroyDelay: 2
+  disableCollidersOnDeath: 1
+  disableAIOnDeath: 1
+  debugDeathLogs: 0
   currentHP: 0
   flashRenderers: []
   flashColor: {r: 1, g: 0.25, b: 0.25, a: 1}
