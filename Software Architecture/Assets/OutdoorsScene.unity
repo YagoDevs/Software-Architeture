@@ -2613,6 +2613,7 @@ MonoBehaviour:
   audioSource: {fileID: 1059211245}
   questCompleteSfx: {fileID: 8300000, guid: 008c683b2c2114a0b8da90e3b4617754, type: 3}
   sfxVolume: 0.9
+  endgameDelaySeconds: 3
 --- !u!4 &270276817
 Transform:
   m_ObjectHideFlags: 0

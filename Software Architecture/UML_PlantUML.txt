@@ -1,0 +1,514 @@
+@startuml
+skinparam classAttributeIconSize 0
+hide circle
+
+package "Core" {
+  class CombatEvents <<static>> {
+    +OnEnemyKilled : event Action
+    +RaiseEnemyKilled(config: EnemyConfig) : void
+  }
+}
+
+package "Utilities" {
+  enum ItemCategory {
+    All
+    Potions
+    Materials
+    Food
+    Weapons
+    Keys
+  }
+
+  class ItemData <<ScriptableObject>> {
+    +itemName : string
+    +icon : Sprite
+    +description : string
+    +category : ItemCategory
+    +isStackable : bool
+    +maxStack : int
+    +weight : int
+    +isConsumable : bool
+    +healthRestore : int
+    +pickupPrefab : GameObject
+    +pickupScaleMultiplier : float
+  }
+}
+
+package "Entities" {
+  class PlayerHealth <<MonoBehaviour>> {
+    +maxHP : int
+    +CurrentHP : int
+    +IsDead : bool
+    +OnHealthChanged : event Action
+    +OnDied : event Action
+    -Awake() : void
+    +TakeDamage(amount: int) : void
+    +TryHeal(amount: int) : bool
+    -PlaySfx(clip: AudioClip, pos: Vector3) : void
+    -Die() : void
+  }
+
+  class PlayerProgression <<MonoBehaviour>> {
+    +level : int
+    +currentXP : int
+    +xpToNextLevel : int
+    +damageMultiplier : float
+    +OnXPChanged : event Action
+    +OnLevelUp : event Action
+    -Awake() : void
+    -OnEnable() : void
+    -OnDisable() : void
+    -HandleEnemyKilled(config: EnemyConfig) : void
+    +GainXP(amount: int, source: string) : void
+    -LevelUp() : void
+    -PlaySfx(clip: AudioClip, pos: Vector3) : void
+    -RaiseXPChanged() : void
+  }
+
+  class PlayerCombat <<MonoBehaviour>> {
+    +attackRange : float
+    +attackCooldown : float
+    +baseDamage : int
+    +altAttackRange : float
+    +altAttackCooldown : float
+    +altBaseDamage : int
+    +altAttackWindup : float
+    +altAttackIsFireball : bool
+    -Awake() : void
+    -Update() : void
+    -TryAttackPrimary() : void
+    -TryAttackAlt() : void
+    -AltAttackAfterDelay(dmg: int) : IEnumerator
+    -SpawnFireball(dmg: int) : void
+    -PlaySfx(clip: AudioClip, pos: Vector3) : void
+    -OnDrawGizmosSelected() : void
+  }
+
+  class SimpleMovement <<MonoBehaviour>> {
+    +moveSpeed : float
+    +rotationSpeed : float
+    +LockCursor(locked: bool) : void
+    -Start() : void
+    -Update() : void
+    -HandleCameraRotation() : void
+    -HandleMovement() : void
+    -UpdateCameraPosition() : void
+    -UpdateAnimator() : void
+    -HasParameter(anim: Animator, paramName: string) : bool
+  }
+
+  class PlayerInteraction <<MonoBehaviour>> {
+    +interactionRange : float
+    -Update() : void
+    -DetectNearbyItems() : void
+    -CollectItem(item: ItemPickup) : void
+    -ShowInteractionPrompt(show: bool) : void
+    -OnDrawGizmosSelected() : void
+  }
+
+  class EnemyConfig <<ScriptableObject>> {
+    +enemyId : string
+    +displayName : string
+    +isBoss : bool
+    +maxHP : int
+    +contactDamage : int
+    +moveSpeed : float
+    +attackRange : float
+    +attackCooldown : float
+    +xpReward : int
+    +drops : List
+  }
+
+  class "EnemyConfig.DropEntry" as EnemyConfig_DropEntry {
+    +item : ItemData
+    +chance : float
+    +minQuantity : int
+    +maxQuantity : int
+  }
+
+  class EnemyHealth <<MonoBehaviour>> {
+    +config : EnemyConfig
+    +animator : Animator
+    +dieTrigger : string
+    +destroyDelay : float
+    +CurrentHP : int
+    +MaxHP : int
+    +IsDead : bool
+    +OnHealthChanged : event Action
+    +OnDied : event Action
+    -Awake() : void
+    -Update() : void
+    +TakeDamage(amount: int) : void
+    -Die() : void
+    -TryDropItems() : void
+    -SpawnDrop(item: ItemData, quantity: int) : void
+    -CacheOriginalColors() : void
+    -Flash() : void
+    -RestoreColors() : void
+    -ResolveAnimator(preferred: Animator) : Animator
+  }
+
+  class EnemyAI <<MonoBehaviour>> {
+    +config : EnemyConfig
+    +enemyHealth : EnemyHealth
+    +animator : Animator
+    +target : Transform
+    +targetTag : string
+    +fallbackFindPlayerHealth : bool
+    +reacquireInterval : float
+    +animSpeedParam : string
+    +attackTrigger : string
+    -Awake() : void
+    -Start() : void
+    -Update() : void
+    -TryAcquireTarget(force: bool) : void
+    #TryAttack() : void
+    -UpdateAnimator() : void
+    -HasParameter(anim: Animator, paramName: string) : bool
+    -ResolveAnimator(preferred: Animator) : Animator
+  }
+
+  class FireballProjectile <<MonoBehaviour>> {
+    +damage : int
+    +speed : float
+    +lifetime : float
+    +hitLayers : LayerMask
+    +hitsEnemies : bool
+    +hitsPlayer : bool
+    +destroyOnHit : bool
+    -Awake() : void
+    +Launch(direction: Vector3, dmg: int, projectileSpeed: float, layersToHit: LayerMask) : void
+    -Update() : void
+    -OnTriggerEnter(other: Collider) : void
+  }
+
+  class ItemPickup <<MonoBehaviour>> {
+    +itemData : ItemData
+    +quantity : int
+    +autoPickupOnTrigger : bool
+    -Start() : void
+    -Update() : void
+    -OnTriggerEnter(other: Collider) : void
+    +Configure(data: ItemData, qty: int) : void
+  }
+
+  class MageTurretAI <<MonoBehaviour>> {
+    +config : EnemyConfig
+    +enemyHealth : EnemyHealth
+    +target : Transform
+    +projectilePrefab : FireballProjectile
+    +castTrigger : string
+    -Awake() : void
+    -Start() : void
+    -Update() : void
+    -OnDisable() : void
+    -Fire() : void
+    +PlayCastSfx() : void
+    -PlaySfx(clip: AudioClip, pos: Vector3) : void
+  }
+}
+
+package "Boss" {
+  enum BossAttackType {
+    MeleeHit
+    SlamAOE
+    Dash
+  }
+
+  class BossAttackDefinition <<ScriptableObject>> {
+    +attackId : string
+    +displayName : string
+    +type : BossAttackType
+    +cooldown : float
+    +windup : float
+    +damage : int
+    +range : float
+    +animationTrigger : string
+    +aoeRadius : float
+    +dashDistance : float
+    +dashDuration : float
+  }
+
+  class BossController <<MonoBehaviour>> {
+    +activeOnStart : bool
+    +isActive : bool
+    +Activate() : void
+    +attacks : List
+    +alternateAttacks : bool
+    +globalDelayBetweenAttacks : float
+    +chaseTarget : bool
+    +moveSpeed : float
+    +animSpeedParam : string
+    +endgame... : (ver QuestManager)
+    -Awake() : void
+    -Start() : void
+    -Update() : void
+    -FaceTarget() : void
+    -MoveTowardsTarget() : void
+    -GetDesiredStopDistance() : float
+    -TryAcquireTarget(force: bool) : void
+    -UpdateAnimator() : void
+    -HasParameter(anim: Animator, paramName: string) : bool
+    -PickAttack() : BossAttackDefinition
+    -IsReady(a: BossAttackDefinition) : bool
+    -SetCooldown(a: BossAttackDefinition) : void
+    -DoAttack(a: BossAttackDefinition) : IEnumerator
+    -ApplyDamageIfInRange(dmg: int, range: float) : void
+    -DashForward(distance: float, duration: float) : IEnumerator
+    -PlanarDistance(a: Vector3, b: Vector3) : float
+  }
+}
+
+package "Quests" {
+  enum QuestType {
+    KillEnemy
+    FetchItem
+  }
+
+  class QuestDefinition <<ScriptableObject>> {
+    +questId : string
+    +title : string
+    +description : string
+    +type : QuestType
+    +requiredAmount : int
+    +targetEnemyId : string
+    +targetItem : ItemData
+  }
+
+  class QuestManager <<MonoBehaviour>> {
+    +startingQuests : List
+    +overrides : List
+    +OnQuestsChanged : event Action
+    +ActiveQuests : IReadOnlyList
+    +endgameDelaySeconds : float
+    -Awake() : void
+    -OnEnable() : void
+    -OnDisable() : void
+    -Start() : void
+    -Update() : void
+    +StartQuests(defs: IEnumerable) : void
+    +IsQuestCompleted(questId: string) : bool
+    -HandleEnemyKilled(config: EnemyConfig) : void
+    -HandleInventoryChanged() : void
+    -RefreshFetchQuests() : void
+    -PlaySfx(clip: AudioClip, pos: Vector3) : void
+    -RaiseChanged() : void
+    -TryShowEndgameIfAllCompleted() : void
+    -ShowEndgameAfterDelay() : IEnumerator
+  }
+
+  class "QuestManager.QuestState" as QuestManager_QuestState {
+    +def : QuestDefinition
+    +currentAmount : int
+    +completed : bool
+    +requiredOverride : int
+    +Required : int
+  }
+
+  class "QuestManager.QuestOverride" as QuestManager_QuestOverride {
+    +questId : string
+    +requiredAmount : int
+  }
+}
+
+package "Managers" {
+  class GameManager <<MonoBehaviour>> {
+    +Instance : GameManager <<static>>
+    +pauseOnGameOver : bool
+    +gameOverUI : GameOverUI
+    +HandlePlayerDied() : void
+    +Restart() : void
+  }
+
+  class InventoryManager <<MonoBehaviour>> {
+    +Instance : InventoryManager <<static>>
+    +OnInventoryChanged : event Action
+    +maxCapacity : int
+    +currentCapacity : int
+    +items : List
+    +maxSlots : int
+    +AddItem(itemData: ItemData, quantity: int) : bool
+    +RemoveItem(itemData: ItemData, quantity: int) : void
+    +UseItem(item: InventoryItem) : void
+    +GetItemsByCategory(category: ItemCategory) : List
+    +GetItemQuantity(itemData: ItemData) : int
+    -PlayPickupSfx() : void
+  }
+
+  class InventoryItem {
+    +itemData : ItemData
+    +quantity : int
+  }
+
+  class EnemySpawner <<MonoBehaviour>> {
+    +enemyTypeA : GameObject
+    +enemyTypeB : GameObject
+    +bossEnemy : GameObject
+    +maxAlive : int
+    +spawnInterval : float
+    +spawnRadius : float
+    +killsToSpawnBoss : int
+    +stopSpawningWhenQuestCompleted : bool
+    +questIdToStopSpawning : string
+    -OnEnable() : void
+    -OnDisable() : void
+    -Start() : void
+    -Update() : void
+    -HandleEnemyKilled(config: EnemyConfig) : void
+    -PickRegularPrefab() : GameObject
+    -TrySpawn(prefab: GameObject) : void
+    -GetSpawnPosition() : Vector3
+    -OnDrawGizmosSelected() : void
+  }
+
+  class BossSpawnTrigger <<MonoBehaviour>> {
+    +bossPrefab : GameObject
+    +spawnPoint : Transform
+    +spawnOnce : bool
+    +activateBossAI : bool
+    -Awake() : void
+    -Update() : void
+    -OnTriggerEnter(other: Collider) : void
+    -SpawnBoss(player: GameObject) : void
+  }
+}
+
+package "UI" {
+  class PlayerHUD <<MonoBehaviour>> {
+    +playerHealth : PlayerHealth
+    +playerProgression : PlayerProgression
+    -Awake() : void
+    -OnEnable() : void
+    -OnDisable() : void
+    -AutoFindIfNeeded() : void
+    -HandleHealthChanged(current: int, max: int) : void
+    -HandleXPChanged(level: int, currentXP: int, xpToNext: int) : void
+    -HandleLevelUp(newLevel: int) : void
+  }
+
+  class EnemyHealthBar <<MonoBehaviour>> {
+    +enemyHealth : EnemyHealth
+    -Awake() : void
+    -OnEnable() : void
+    -OnDisable() : void
+    -LateUpdate() : void
+    -CalculateAutoHeight() : float
+    -ApplyStaticTexts() : void
+    -HandleHealthChanged(current: int, max: int) : void
+  }
+
+  class QuestHUD <<MonoBehaviour>> {
+    +questManager : QuestManager
+    +Refresh() : void
+    -Awake() : void
+    -OnEnable() : void
+    -OnDisable() : void
+  }
+
+  class InventoryUI <<MonoBehaviour>> {
+    +ToggleInventory() : void
+    +RefreshInventory() : void
+    +SelectItem(slot: InventorySlot) : void
+    -Start() : void
+    -Update() : void
+    -CreateSlots() : void
+    -EnsureButtonWiring() : void
+    -SetCursorForUI(uiOpen: bool) : void
+    -UpdateCapacityDisplay() : void
+    -ShowItemDetails(item: InventoryItem) : void
+    -UseSelectedItem() : void
+    -DropSelectedItem() : void
+    -FilterByCategory(category: ItemCategory) : void
+  }
+
+  class InventorySlot <<MonoBehaviour>> {
+    +item : InventoryItem
+    +Initialize(ui: InventoryUI) : void
+    +SetItem(newItem: InventoryItem) : void
+    +ClearSlot() : void
+    +SetSelected(isSelected: bool) : void
+    +OnPointerClick(eventData: PointerEventData) : void
+    -Start() : void
+  }
+
+  class CombatTextManager <<MonoBehaviour>> {
+    +Instance : CombatTextManager <<static>>
+    +SpawnWorldText(worldPos: Vector3, text: string, color: Color) : void
+    -Awake() : void
+  }
+
+  class CombatText <<MonoBehaviour>> {
+    +lifetime : float
+    +worldVelocity : Vector3
+    +fadeStart : float
+    -Awake() : void
+    -Update() : void
+  }
+
+  class GameOverUI <<MonoBehaviour>> {
+    +Show() : void
+    +Hide() : void
+    +Restart() : void
+    -Awake() : void
+    -Update() : void
+  }
+
+  class GameCompleteUI <<static>> {
+    +IsShown : bool
+    +Show(title: string, body: string, buttonText: string) : void
+    -Restart() : void
+  }
+}
+
+' ===== Relações principais (alto nível) =====
+PlayerCombat --> EnemyHealth : dano melee
+PlayerCombat --> FireballProjectile : SpawnFireball()
+FireballProjectile --> EnemyHealth : TakeDamage()
+FireballProjectile --> PlayerHealth : TakeDamage()
+PlayerProgression ..> CombatEvents : subscreve OnEnemyKilled
+EnemyHealth ..> CombatEvents : RaiseEnemyKilled()
+
+EnemyAI --> EnemyConfig
+EnemyAI --> EnemyHealth
+EnemyAI --> PlayerHealth : ataca
+EnemyAI ..> CombatTextManager
+
+EnemyHealth --> EnemyConfig
+EnemyHealth --> ItemData
+EnemyHealth ..> ItemPickup
+EnemyHealth ..> BossController : desabilita ao morrer
+EnemyHealth ..> MageTurretAI : desabilita ao morrer
+
+BossController --> BossAttackDefinition
+BossController --> EnemyHealth
+BossController --> PlayerHealth
+BossController ..> CombatTextManager
+
+QuestManager --> QuestDefinition
+QuestManager --> QuestManager_QuestState
+QuestManager --> QuestManager_QuestOverride
+QuestManager ..> InventoryManager : hook OnInventoryChanged
+QuestManager ..> CombatEvents : subscreve OnEnemyKilled
+QuestManager ..> GameCompleteUI : mostra fim de jogo
+
+EnemySpawner ..> CombatEvents : subscreve OnEnemyKilled
+EnemySpawner ..> QuestManager : IsQuestCompleted()
+BossSpawnTrigger ..> BossController : Activate()
+
+InventoryManager --> InventoryItem
+InventoryItem --> ItemData
+InventoryManager ..> PlayerHealth : UseItem()
+InventoryManager ..> CombatTextManager
+
+PlayerHUD --> PlayerHealth
+PlayerHUD --> PlayerProgression
+EnemyHealthBar --> EnemyHealth
+QuestHUD --> QuestManager
+InventoryUI --> InventoryManager
+InventoryUI --> InventorySlot
+InventorySlot --> InventoryItem
+GameOverUI ..> GameManager : Restart()
+GameManager --> GameOverUI
+
+@enduml
+

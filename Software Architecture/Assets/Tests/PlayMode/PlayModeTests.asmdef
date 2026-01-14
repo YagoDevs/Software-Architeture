@@ -1,0 +1,12 @@
+{
+  "name": "PlayModeTests",
+  "references": [
+    "GameScripts"
+  ],
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": []
+}
+
