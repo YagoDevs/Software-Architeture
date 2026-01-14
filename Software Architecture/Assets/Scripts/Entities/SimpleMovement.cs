@@ -6,6 +6,10 @@ public class SimpleMovement : MonoBehaviour
     [Header("Movement")]
     public float moveSpeed = 9f;
     public float rotationSpeed = 10f;
+    [Header("Physics (CharacterController)")]
+    public CharacterController controller;
+    public float gravity = -20f;
+    float verticalVelocity;
     
     [Header("Camera")]
     public Transform cameraTransform;
@@ -28,6 +32,11 @@ public class SimpleMovement : MonoBehaviour
 
     void Start()
     {
+        if (controller == null)
+            controller = GetComponent<CharacterController>();
+        if (controller == null)
+            controller = gameObject.AddComponent<CharacterController>();
+
         if (animator == null)
             animator = GetComponentInChildren<Animator>();
 
@@ -94,16 +103,27 @@ public class SimpleMovement : MonoBehaviour
         Quaternion targetRotation = Quaternion.Euler(0, cameraRotationX, 0);
         transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
         
-        if (horizontal != 0 || vertical != 0)
+        // Direction based on camera
+        Vector3 forward = Quaternion.Euler(0, cameraRotationX, 0) * Vector3.forward;
+        Vector3 right = Quaternion.Euler(0, cameraRotationX, 0) * Vector3.right;
+        Vector3 moveDirection = (forward * vertical + right * horizontal);
+        if (moveDirection.sqrMagnitude > 1f) moveDirection.Normalize();
+
+        // Gravity + grounded handling
+        if (controller != null)
         {
-            // Direction based on camera
-            Vector3 forward = Quaternion.Euler(0, cameraRotationX, 0) * Vector3.forward;
-            Vector3 right = Quaternion.Euler(0, cameraRotationX, 0) * Vector3.right;
-            
-            Vector3 moveDirection = (forward * vertical + right * horizontal).normalized;
-            
-            // Move the character
-            transform.position += moveDirection * moveSpeed * Time.deltaTime;
+            if (controller.isGrounded && verticalVelocity < 0f)
+                verticalVelocity = -1f; // keep grounded
+            verticalVelocity += gravity * Time.deltaTime;
+
+            Vector3 velocity = moveDirection * moveSpeed;
+            velocity.y = verticalVelocity;
+            controller.Move(velocity * Time.deltaTime);
+        }
+        else
+        {
+            // Fallback (shouldn't happen): old behavior
+            transform.position += moveDirection.normalized * moveSpeed * Time.deltaTime;
         }
     }
     

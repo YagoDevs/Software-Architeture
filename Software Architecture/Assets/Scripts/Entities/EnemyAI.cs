@@ -64,10 +64,9 @@ public class EnemyAI : MonoBehaviour
             }
         }
 
-        // Use planar distance (XZ) so differences in model height/scale don't break melee range.
-        Vector2 a = new Vector2(transform.position.x, transform.position.z);
-        Vector2 b = new Vector2(target.position.x, target.position.z);
-        float dist = Vector2.Distance(a, b);
+        // Use planar distance (XZ). Prefer collider-to-collider distance so CharacterController/colliders
+        // don't prevent reaching the "attack range" due to center-to-center checks.
+        float dist = PlanarDistanceToTarget();
 
         // Move towards player until in attack range
         if (dist > config.attackRange)
@@ -89,6 +88,33 @@ public class EnemyAI : MonoBehaviour
         }
 
         UpdateAnimator();
+    }
+
+    float PlanarDistanceToTarget()
+    {
+        if (target == null) return float.PositiveInfinity;
+
+        var myCol = GetComponentInChildren<Collider>();
+        var targetCol = target.GetComponentInParent<Collider>();
+        if (targetCol == null) targetCol = target.GetComponentInChildren<Collider>();
+
+        Vector3 a = transform.position;
+        Vector3 b = target.position;
+
+        if (myCol != null)
+        {
+            // Closest point on this enemy to the target's position.
+            a = myCol.ClosestPoint(target.position);
+        }
+        if (targetCol != null)
+        {
+            // Closest point on the target to this enemy's position.
+            b = targetCol.ClosestPoint(transform.position);
+        }
+
+        Vector2 a2 = new Vector2(a.x, a.z);
+        Vector2 b2 = new Vector2(b.x, b.z);
+        return Vector2.Distance(a2, b2);
     }
 
     void TryAcquireTarget(bool force)

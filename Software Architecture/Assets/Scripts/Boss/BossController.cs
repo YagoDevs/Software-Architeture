@@ -69,7 +69,7 @@ public class BossController : MonoBehaviour
         if (currentAttack != null) return;
         if (Time.time < nextAttackAllowedAt) return;
 
-        float dist = PlanarDistance(transform.position, target.position);
+        float dist = PlanarDistanceToTarget();
         float desiredStop = GetDesiredStopDistance();
 
         if (chaseTarget && dist > desiredStop)
@@ -196,7 +196,7 @@ public class BossController : MonoBehaviour
     {
         if (attacks == null || attacks.Count == 0) return null;
 
-        float dist = PlanarDistance(transform.position, target.position);
+        float dist = PlanarDistanceToTarget();
         int count = attacks.Count;
 
         // Round-robin: try starting from nextAttackIndex to alternate attacks over time.
@@ -281,7 +281,7 @@ public class BossController : MonoBehaviour
     void ApplyDamageIfInRange(int dmg, float range)
     {
         if (target == null) return;
-        float dist = PlanarDistance(transform.position, target.position);
+        float dist = PlanarDistanceToTarget();
         if (dist > range) return;
 
         var ph = target.GetComponentInParent<PlayerHealth>();
@@ -313,6 +313,35 @@ public class BossController : MonoBehaviour
         Vector2 a2 = new Vector2(a.x, a.z);
         Vector2 b2 = new Vector2(b.x, b.z);
         return Vector2.Distance(a2, b2);
+    }
+
+    float PlanarDistanceToTarget()
+    {
+        if (target == null) return float.PositiveInfinity;
+
+        var myCol = GetComponentInChildren<Collider>();
+        var targetCol = target.GetComponentInParent<Collider>();
+        if (targetCol == null) targetCol = target.GetComponentInChildren<Collider>();
+
+        // Prefer bounds-to-bounds distance on XZ: robust even with large scales and overlapping colliders.
+        if (myCol != null && targetCol != null)
+            return PlanarBoundsDistance(myCol.bounds, targetCol.bounds);
+
+        return PlanarDistance(transform.position, target.position);
+    }
+
+    static float PlanarBoundsDistance(Bounds a, Bounds b)
+    {
+        // Distance between AABB rectangles on XZ plane (0 if overlapping).
+        float dx = 0f;
+        if (a.max.x < b.min.x) dx = b.min.x - a.max.x;
+        else if (b.max.x < a.min.x) dx = a.min.x - b.max.x;
+
+        float dz = 0f;
+        if (a.max.z < b.min.z) dz = b.min.z - a.max.z;
+        else if (b.max.z < a.min.z) dz = a.min.z - b.max.z;
+
+        return Mathf.Sqrt(dx * dx + dz * dz);
     }
 }
 
