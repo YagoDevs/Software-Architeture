@@ -1,3 +1,7 @@
+/*
+This script is used as a simple event bus. It broadcasts when an enemy is killed so other systems can react without tight coupling.
+*/
+
 using System;
 
 public static class CombatEvents

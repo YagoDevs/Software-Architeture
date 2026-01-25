@@ -1,3 +1,7 @@
+/*
+This script is used to control the boss: chase the player, choose attacks, trigger animations, and apply damage. Some parts were iterated with AI assistance during development (refinement and edge-case fixes).
+*/
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -41,6 +45,7 @@ public class BossController : MonoBehaviour
     public EnemyHealth enemyHealth; // optional, for death checks
 
     readonly Dictionary<BossAttackDefinition, float> nextReadyAt = new Dictionary<BossAttackDefinition, float>();
+    readonly Dictionary<BossAttackType, IBossAttackStrategy> strategies = new Dictionary<BossAttackType, IBossAttackStrategy>();
     Coroutine currentAttack;
     float move01;
 
@@ -49,6 +54,11 @@ public class BossController : MonoBehaviour
         isActive = activeOnStart;
         if (animator == null) animator = GetComponentInChildren<Animator>();
         if (enemyHealth == null) enemyHealth = GetComponent<EnemyHealth>();
+
+        // Strategy Pattern: one subclass per attack type.
+        strategies[BossAttackType.MeleeHit] = new BossMeleeHitStrategy();
+        strategies[BossAttackType.SlamAOE] = new BossSlamAOEStrategy();
+        strategies[BossAttackType.Dash] = new BossDashStrategy();
     }
 
     void Start()
@@ -66,8 +76,11 @@ public class BossController : MonoBehaviour
             UpdateAnimator();
             return;
         }
+        //already attacking
         if (currentAttack != null) return;
+        //not allowed to attack yet
         if (Time.time < nextAttackAllowedAt) return;
+        //calculate the distance to the target
 
         float dist = PlanarDistanceToTarget();
         float desiredStop = GetDesiredStopDistance();
@@ -256,29 +269,20 @@ public class BossController : MonoBehaviour
         if (enemyHealth != null && enemyHealth.IsDead) { currentAttack = null; yield break; }
         if (target == null) { currentAttack = null; yield break; }
 
-        switch (a.type)
+        if (!strategies.TryGetValue(a.type, out var strategy) || strategy == null)
         {
-            case BossAttackType.MeleeHit:
-                ApplyDamageIfInRange(a.damage, a.range);
-                break;
-
-            case BossAttackType.SlamAOE:
-                ApplyDamageIfInRange(a.damage, a.aoeRadius);
-                break;
-
-            case BossAttackType.Dash:
-                yield return DashForward(a.dashDistance, a.dashDuration);
-                // Optional: damage at end of dash if close
-                ApplyDamageIfInRange(a.damage, a.range);
-                break;
+            currentAttack = null;
+            yield break;
         }
+
+        yield return strategy.Execute(this, a);
 
         // Global spacing between skills (even if per-attack cooldown is low).
         nextAttackAllowedAt = Time.time + Mathf.Max(0f, globalDelayBetweenAttacks);
         currentAttack = null;
     }
 
-    void ApplyDamageIfInRange(int dmg, float range)
+    public void ApplyDamageIfInRange(int dmg, float range)
     {
         if (target == null) return;
         float dist = PlanarDistanceToTarget();
@@ -294,7 +298,7 @@ public class BossController : MonoBehaviour
         ph.TakeDamage(Mathf.Max(0, dmg));
     }
 
-    IEnumerator DashForward(float distance, float duration)
+    public IEnumerator DashForward(float distance, float duration)
     {
         if (duration <= 0f) yield break;
         Vector3 start = transform.position;

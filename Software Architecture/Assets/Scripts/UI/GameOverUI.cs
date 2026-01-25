@@ -1,3 +1,7 @@
+/*
+This script is used to show the Game Over panel and restart the game via GameManager.
+*/
+
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;

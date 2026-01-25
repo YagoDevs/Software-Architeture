@@ -1,3 +1,7 @@
+/*
+This script is used to manage the player's inventory (add/remove/use items) and notify listeners when inventory changes.
+*/
+
 using System.Collections.Generic;
 using System;
 using UnityEngine;

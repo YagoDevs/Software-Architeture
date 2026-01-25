@@ -1,3 +1,7 @@
+/*
+This script is used as a simple game-wide manager for Game Over and Restart.
+*/
+
 using UnityEngine;
 using UnityEngine.SceneManagement;
 

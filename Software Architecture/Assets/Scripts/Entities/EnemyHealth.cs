@@ -1,3 +1,7 @@
+/*
+This script is used to manage enemy health, death, drops, and death animation timing. On death it raises a global kill event.
+*/
+
 using System;
 using UnityEngine;
 
@@ -61,7 +65,9 @@ public class EnemyHealth : MonoBehaviour
 
     public void TakeDamage(int amount)
     {
+        // I avoid that the enemy dies two times
         if (IsDead) return;
+        // Remember....... avoid that the enemy is healed by negative damage
         if (amount <= 0) return;
 
         int before = currentHP;

@@ -1,3 +1,7 @@
+/*
+This test file is used to validate core player behavior in PlayMode (health changes, death event, XP and level-up effects).
+*/
+
 using System.Collections;
 using System.Reflection;
 using NUnit.Framework;

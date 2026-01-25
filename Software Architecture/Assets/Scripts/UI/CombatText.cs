@@ -1,3 +1,7 @@
+/*
+This script is used to animate a single combat text (move up + fade out) and destroy it after a short lifetime.
+*/
+
 using TMPro;
 using UnityEngine;
 

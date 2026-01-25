@@ -1,3 +1,7 @@
+/*
+This test file is used to validate core enemy behavior in PlayMode (death flow and global kill event).
+*/
+
 using System.Collections;
 using System.Reflection;
 using NUnit.Framework;

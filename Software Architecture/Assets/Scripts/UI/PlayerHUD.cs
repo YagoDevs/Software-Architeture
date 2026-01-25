@@ -1,3 +1,7 @@
+/*
+This script is used to display the player's HP and XP/level on the HUD by subscribing to player events.
+*/
+
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;

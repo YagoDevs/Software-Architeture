@@ -1,3 +1,7 @@
+/*
+This script is used to handle the player's attacks (melee and optional fireball) with cooldowns and animation triggers.
+*/
+
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -38,6 +42,8 @@ public class PlayerCombat : MonoBehaviour
     float nextAttackTime;
     float nextAltAttackTime;
     PlayerProgression progression;
+    IPlayerAttackStrategy primaryStrategy;
+    IPlayerAttackStrategy altStrategy;
 
     void Awake()
     {
@@ -46,6 +52,10 @@ public class PlayerCombat : MonoBehaviour
             animator = GetComponentInChildren<Animator>();
         if (audioSource == null)
             audioSource = GetComponentInChildren<AudioSource>();
+
+        // Strategy Pattern: choose the algorithm implementation via subclasses.
+        primaryStrategy = new PlayerMeleeAttackStrategy();
+        altStrategy = altAttackIsFireball ? new PlayerFireballAttackStrategy() : new PlayerMeleeAttackStrategy();
     }
 
     void Update()
@@ -73,28 +83,18 @@ public class PlayerCombat : MonoBehaviour
         if (logAttacks)
             Debug.Log($"Player attacked for {dmg}!");
 
-        if (animator != null && !string.IsNullOrEmpty(attack1Trigger))
-            animator.SetTrigger(attack1Trigger);
-
-        PlaySfx(attack1Sfx, transform.position);
-
-        // Simple melee: hit any EnemyHealth near the player
-        Collider[] hits = Physics.OverlapSphere(transform.position, attackRange, enemyLayers);
-        for (int i = 0; i < hits.Length; i++)
+        var req = new PlayerAttackRequest
         {
-            var eh = hits[i].GetComponentInParent<EnemyHealth>();
-            if (eh != null && !eh.IsDead)
-            {
-                eh.TakeDamage(dmg);
-                if (logAttacks)
-                {
-                    string n = (eh.config != null && !string.IsNullOrEmpty(eh.config.displayName)) ? eh.config.displayName : eh.name;
-                    Debug.Log($"Hit confirmed on {n}. Enemy HP: {eh.CurrentHP}/{eh.MaxHP}");
-                }
-                // 1 target per swing (simple + readable)
-                return;
-            }
-        }
+            range = attackRange,
+            windupSeconds = 0f,
+            enemyLayers = enemyLayers,
+            animatorTrigger = attack1Trigger,
+            sfx = attack1Sfx,
+            isAlt = false,
+            isFireball = false
+        };
+
+        primaryStrategy.Execute(this, req, dmg);
     }
 
     void TryAttackAlt()
@@ -109,68 +109,55 @@ public class PlayerCombat : MonoBehaviour
         if (logAttacks)
             Debug.Log($"Player ALT attacked for {dmg}!");
 
-        if (animator != null && !string.IsNullOrEmpty(attack2Trigger))
-            animator.SetTrigger(attack2Trigger);
+        // Ensure the ALT strategy matches current configuration (in case altAttackIsFireball is toggled at runtime).
+        altStrategy = altAttackIsFireball ? (IPlayerAttackStrategy)new PlayerFireballAttackStrategy() : new PlayerMeleeAttackStrategy();
 
-        // Delay to sync with animation timing
-        StartCoroutine(AltAttackAfterDelay(dmg));
+        var req = new PlayerAttackRequest
+        {
+            range = altAttackRange,
+            windupSeconds = Mathf.Max(0f, altAttackWindup),
+            enemyLayers = enemyLayers,
+            animatorTrigger = attack2Trigger,
+            sfx = attack2Sfx,
+            isAlt = true,
+
+            isFireball = altAttackIsFireball,
+            fireballPrefab = fireballPrefab,
+            fireballSpawnPoint = fireballSpawnPoint,
+            fireballSpeed = fireballSpeed,
+            fireballSpawnForwardOffset = fireballSpawnForwardOffset,
+            fireballLaunchSfx = fireballLaunchSfx
+        };
+
+        altStrategy.Execute(this, req, dmg);
     }
 
-    System.Collections.IEnumerator AltAttackAfterDelay(int dmg)
+    public bool IsInputAllowed()
     {
-        if (altAttackWindup > 0f)
-            yield return new WaitForSeconds(altAttackWindup);
-
-        // If UI opened during windup, cancel
-        if (Cursor.lockState != CursorLockMode.Locked)
-            yield break;
-
-        if (altAttackIsFireball && fireballPrefab != null)
-        {
-            SpawnFireball(dmg);
-            yield break;
-        }
-
-        PlaySfx(attack2Sfx, transform.position);
-
-        Collider[] hits = Physics.OverlapSphere(transform.position, altAttackRange, enemyLayers);
-        for (int i = 0; i < hits.Length; i++)
-        {
-            var eh = hits[i].GetComponentInParent<EnemyHealth>();
-            if (eh != null && !eh.IsDead)
-            {
-                eh.TakeDamage(dmg);
-                if (logAttacks)
-                {
-                    string n = (eh.config != null && !string.IsNullOrEmpty(eh.config.displayName)) ? eh.config.displayName : eh.name;
-                    Debug.Log($"ALT hit confirmed on {n}. Enemy HP: {eh.CurrentHP}/{eh.MaxHP}");
-                }
-                yield break;
-            }
-        }
+        return Cursor.lockState == CursorLockMode.Locked;
     }
 
-    void SpawnFireball(int dmg)
+    public void TriggerAttackAnimation(string trigger)
     {
-        Vector3 spawnPos;
-        Vector3 dir = transform.forward;
+        if (animator == null) return;
+        if (string.IsNullOrEmpty(trigger)) return;
+        animator.SetTrigger(trigger);
+    }
 
-        if (fireballSpawnPoint != null)
-        {
-            spawnPos = fireballSpawnPoint.position;
-            dir = fireballSpawnPoint.forward;
-        }
+    public void PlayAttackSfx(AudioClip clip, Vector3 pos)
+    {
+        PlaySfx(clip, pos);
+    }
+
+    public void LogEnemyHit(EnemyHealth eh, bool isAlt)
+    {
+        if (!logAttacks) return;
+        if (eh == null) return;
+        string n = (eh.config != null && !string.IsNullOrEmpty(eh.config.displayName)) ? eh.config.displayName : eh.name;
+        if (!isAlt)
+            Debug.Log($"Hit confirmed on {n}. Enemy HP: {eh.CurrentHP}/{eh.MaxHP}");
         else
-        {
-            spawnPos = transform.position + Vector3.up * 1.2f + transform.forward * fireballSpawnForwardOffset;
-        }
-
-        var fb = Instantiate(fireballPrefab, spawnPos, Quaternion.LookRotation(dir, Vector3.up));
-
-        // Only hit enemies: use enemyLayers (same mask used by melee scan)
-        fb.Launch(dir, dmg, fireballSpeed, enemyLayers);
-
-        PlaySfx(fireballLaunchSfx != null ? fireballLaunchSfx : attack2Sfx, spawnPos);
+            Debug.Log($"ALT hit confirmed on {n}. Enemy HP: {eh.CurrentHP}/{eh.MaxHP}");
     }
 
     void PlaySfx(AudioClip clip, Vector3 pos)

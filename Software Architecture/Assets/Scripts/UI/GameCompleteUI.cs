@@ -1,3 +1,7 @@
+/*
+This script is used to show a simple endgame overlay (all quests completed) and restart the game. Some parts were iterated with AI assistance during development (refinement and edge-case fixes).
+*/
+
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;

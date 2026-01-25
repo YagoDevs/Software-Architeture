@@ -1,3 +1,7 @@
+/*
+This script is used for a stationary ranged enemy that rotates toward the player and shoots projectiles when in range.
+*/
+
 using UnityEngine;
 
 // Stationary enemy that shoots projectiles at the player.

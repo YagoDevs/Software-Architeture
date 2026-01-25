@@ -1,3 +1,7 @@
+/*
+This script is used for a simple melee enemy AI: chase the player, play walk/attack animations, and deal contact damage on a cooldown.
+*/
+
 using UnityEngine;
 
 public class EnemyAI : MonoBehaviour
@@ -64,8 +68,8 @@ public class EnemyAI : MonoBehaviour
             }
         }
 
-        // Use planar distance (XZ). Prefer collider-to-collider distance so CharacterController/colliders
-        // don't prevent reaching the "attack range" due to center-to-center checks.
+        // Use planar distance XZ.... Prefer collider-to-collider distance so CharacterController/colliders
+        // don't prevent reaching the attack range due to center-to-center checks.
         float dist = PlanarDistanceToTarget();
 
         // Move towards player until in attack range

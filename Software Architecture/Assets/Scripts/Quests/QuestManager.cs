@@ -1,3 +1,7 @@
+/*
+This script is used to track and update quests (kill/fetch), notify the UI, and trigger endgame when all quests are completed. Some parts were iterated with AI assistance during development (refinement and edge-case fixes).
+*/
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -158,6 +162,7 @@ public class QuestManager : MonoBehaviour
         return false;
     }
 
+    // remeber.... Filter the enemy killed and check if the quest is completed
     void HandleEnemyKilled(EnemyConfig config)
     {
         if (config == null) return;

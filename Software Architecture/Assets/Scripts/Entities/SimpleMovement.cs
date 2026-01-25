@@ -1,3 +1,7 @@
+/*
+This script is used to move the player (WASD) and rotate the camera with the mouse. It also drives the Animator 'Speed' parameter when available.
+*/
+
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -73,6 +77,7 @@ public class SimpleMovement : MonoBehaviour
     void HandleCameraRotation()
     {
         // Rotate camera with mouse movement (no need to hold buttons)
+        // this is for the inventory UI, so we can rotate the camera while the inventory is open
         if (Cursor.lockState != CursorLockMode.Locked) return;
         if (Mouse.current == null) return;
 
@@ -145,6 +150,7 @@ public class SimpleMovement : MonoBehaviour
         Cursor.visible = !locked;
     }
 
+    // this is for the animation, so we can animate the player's movement
     void UpdateAnimator()
     {
         if (animator == null) return;
@@ -162,6 +168,7 @@ public class SimpleMovement : MonoBehaviour
         animator.SetFloat(animSpeedParam, next);
     }
 
+    // this is for the animation, so we can check if the parameter exists
     static bool HasParameter(Animator anim, string paramName)
     {
         if (anim == null) return false;

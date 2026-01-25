@@ -1,3 +1,7 @@
+/*
+This script is used to represent a single inventory slot UI element and notify InventoryUI when clicked.
+*/
+
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;

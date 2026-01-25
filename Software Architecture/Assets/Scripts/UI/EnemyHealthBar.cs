@@ -1,3 +1,7 @@
+/*
+This script is used to show an enemy HP bar above the enemy and keep it facing the camera.
+*/
+
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;

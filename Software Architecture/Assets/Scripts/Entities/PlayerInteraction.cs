@@ -1,7 +1,12 @@
+/*
+This script is used to detect nearby pickups and collect items with a key press, showing an optional interaction prompt.
+*/
+
 using UnityEngine;
 using UnityEngine.InputSystem;
 using TMPro;
 
+// this is for the interaction with the items, so we can collect them
 public class PlayerInteraction : MonoBehaviour
 {
     [Header("Interaction Settings")]

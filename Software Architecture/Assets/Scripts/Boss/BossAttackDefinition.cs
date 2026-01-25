@@ -1,3 +1,7 @@
+/*
+This script defines a boss attack as a ScriptableObject (type, damage, range, cooldown, windup, animation trigger).
+*/
+
 using UnityEngine;
 
 public enum BossAttackType

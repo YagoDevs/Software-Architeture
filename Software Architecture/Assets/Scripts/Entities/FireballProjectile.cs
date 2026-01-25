@@ -1,3 +1,7 @@
+/*
+This script is used to move a projectile forward and apply damage on trigger collision.
+*/
+
 using UnityEngine;
 
 public class FireballProjectile : MonoBehaviour
@@ -23,6 +27,7 @@ public class FireballProjectile : MonoBehaviour
     }
 
     // Default launch (player fireball): hits enemies
+    // here i normalize the direction to avoid the projectile to go crazy
     public void Launch(Vector3 direction, int dmg, float projectileSpeed, LayerMask layersToHit)
     {
         damage = dmg;
@@ -49,6 +54,7 @@ public class FireballProjectile : MonoBehaviour
         transform.forward = direction;
     }
 
+    // this is for the projectile to move and destroy itself after a certain time
     void Update()
     {
         if (rb == null)
@@ -61,6 +67,7 @@ public class FireballProjectile : MonoBehaviour
             Destroy(gameObject);
     }
 
+    // this is for the projectile to hit the enemy or the player
     void OnTriggerEnter(Collider other)
     {
         // Layer filter

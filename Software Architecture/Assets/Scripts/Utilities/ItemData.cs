@@ -1,3 +1,7 @@
+/*
+This script defines an item as a ScriptableObject (name, icon, category, stack rules, and optional consumable effects).
+*/
+
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "New Item", menuName = "Inventory/Item")]

@@ -1,3 +1,7 @@
+/*
+This script defines a quest as a ScriptableObject (Kill or Fetch) with targets and required amounts.
+*/
+
 using UnityEngine;
 
 public enum QuestType

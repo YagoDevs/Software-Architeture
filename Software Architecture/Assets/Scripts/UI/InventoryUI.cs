@@ -1,3 +1,7 @@
+/*
+This script is used to open/close the inventory UI, build item slots, and call InventoryManager to use/drop items.
+*/
+
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;

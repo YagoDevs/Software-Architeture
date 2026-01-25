@@ -1,3 +1,7 @@
+/*
+This script defines enemy stats and rewards as a ScriptableObject (HP, damage, speed, drops).
+*/
+
 using System;
 using System.Collections.Generic;
 using UnityEngine;

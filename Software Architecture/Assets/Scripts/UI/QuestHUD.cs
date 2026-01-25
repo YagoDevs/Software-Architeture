@@ -1,3 +1,7 @@
+/*
+This script is used to show quest progress on the UI and refresh automatically when quests change.
+*/
+
 using System.Text;
 using TMPro;
 using UnityEngine;
@@ -56,7 +60,7 @@ public class QuestHUD : MonoBehaviour
             var q = quests[i];
             if (q == null || q.def == null) continue;
 
-            string status = q.completed ? "✓" : "";
+            string status = q.completed ? "Completed!" : "";
             string line = $"- {q.def.title}: {q.currentAmount}/{q.Required} {status}".TrimEnd();
 
             // Only the completed quest turns green; if all completed, everything becomes green.

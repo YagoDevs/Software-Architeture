@@ -1,3 +1,7 @@
+/*
+This test file is used to validate quest progression in PlayMode (kill quest completion through a kill event).
+*/
+
 using System.Collections;
 using System.Reflection;
 using NUnit.Framework;

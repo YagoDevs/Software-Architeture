@@ -1,3 +1,7 @@
+/*
+This script is used to spawn enemies over time and manage simple spawn rules (max alive, boss spawn, stop conditions). Some parts were iterated with AI assistance during development (refinement and edge-case fixes).
+*/
+
 using System.Collections.Generic;
 using UnityEngine;
 

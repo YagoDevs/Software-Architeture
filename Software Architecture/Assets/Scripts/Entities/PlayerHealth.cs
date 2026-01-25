@@ -1,3 +1,7 @@
+/*
+This script is used to manage the player's health (damage, healing, death) and notify other systems via events.
+*/
+
 using System;
 using UnityEngine;
 
@@ -33,9 +37,12 @@ public class PlayerHealth : MonoBehaviour
 
     public void TakeDamage(int amount)
     {
+        // I avoid that the player dies two times
         if (IsDead) return;
+        // Remember....... avoid that the player is healed by negative damage
         if (amount <= 0) return;
 
+        // Avoid 
         currentHP = Mathf.Max(0, currentHP - amount);
         OnHealthChanged?.Invoke(currentHP, maxHP);
 

@@ -1,3 +1,7 @@
+/*
+This script is used to spawn and activate the boss when the player enters a trigger area (with an optional fallback).
+*/
+
 using UnityEngine;
 
 // Put this on a trigger collider. When Player enters, spawn boss at a specific spawn point and activate it.

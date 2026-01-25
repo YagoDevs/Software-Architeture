@@ -1,3 +1,7 @@
+/*
+This script is used to represent a pickup in the world (bob + rotate) and optionally auto-collect it when the player enters a trigger.
+*/
+
 using UnityEngine;
 
 public class ItemPickup : MonoBehaviour

@@ -1,3 +1,7 @@
+/*
+This script is used to spawn floating combat text on the UI from world positions.
+*/
+
 using TMPro;
 using UnityEngine;
 

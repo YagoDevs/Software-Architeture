@@ -1,3 +1,7 @@
+/*
+This script is used to manage XP and leveling. It increases stats on level up and notifies the UI via events.
+*/
+
 using System;
 using UnityEngine;
 
@@ -32,6 +36,7 @@ public class PlayerProgression : MonoBehaviour
         RaiseXPChanged();
     }
 
+    // this avoid event handlers to be called after the object is destroyed
     void OnEnable()
     {
         CombatEvents.OnEnemyKilled += HandleEnemyKilled;
